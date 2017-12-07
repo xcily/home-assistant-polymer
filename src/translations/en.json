@@ -1,6 +1,7 @@
 {
   "panel": {
     "config": "Configuration",
+    "config_adv": "AdvConfiguration",
     "states": "Overview",
     "map": "Map",
     "logbook": "Logbook",
