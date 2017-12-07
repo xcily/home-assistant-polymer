@@ -1,6 +1,6 @@
 import { h, Component } from 'preact';
 
-import { onChangeEvent } from '../../util/event.js';
+import { onChangeEvent } from '../../common/util/event.js';
 
 export default class SunCondition extends Component {
   constructor() {
@@ -45,7 +45,7 @@ export default class SunCondition extends Component {
           label="Before offset (optional)"
           name="before_offset"
           value={before_offset}
-          onChange={this.onChange}
+          onvalue-changed={this.onChange}
           disabled={before === undefined}
         />
 
@@ -64,7 +64,7 @@ export default class SunCondition extends Component {
           label="After offset (optional)"
           name="after_offset"
           value={after_offset}
-          onChange={this.onChange}
+          onvalue-changed={this.onChange}
           disabled={after === undefined}
         />
       </div>

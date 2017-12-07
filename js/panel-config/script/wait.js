@@ -1,5 +1,5 @@
 import { h, Component } from 'preact';
-import { onChangeEvent } from '../../util/event.js';
+import { onChangeEvent } from '../../common/util/event.js';
 
 export default class WaitAction extends Component {
   constructor() {
@@ -33,7 +33,7 @@ export default class WaitAction extends Component {
           label="Timeout (Optional)"
           name="timeout"
           value={timeout}
-          onChange={this.onChange}
+          onvalue-changed={this.onChange}
         />
       </div>
     );

@@ -1,6 +1,6 @@
 import { h, Component } from 'preact';
 
-import { onChangeEvent } from '../../util/event.js';
+import { onChangeEvent } from '../../common/util/event.js';
 
 export default class NumericStateCondition extends Component {
   constructor() {
@@ -34,13 +34,13 @@ export default class NumericStateCondition extends Component {
           label="Above"
           name="above"
           value={above}
-          onChange={this.onChange}
+          onvalue-changed={this.onChange}
         />
         <paper-input
           label="Below"
           name="below"
           value={below}
-          onChange={this.onChange}
+          onvalue-changed={this.onChange}
         />
         <paper-textarea
           label="Value template (optional)"

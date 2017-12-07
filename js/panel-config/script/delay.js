@@ -1,5 +1,5 @@
 import { h, Component } from 'preact';
-import { onChangeEvent } from '../../util/event.js';
+import { onChangeEvent } from '../../common/util/event.js';
 
 export default class DelayAction extends Component {
   constructor() {
@@ -16,7 +16,7 @@ export default class DelayAction extends Component {
           label="Delay"
           name="delay"
           value={delay}
-          onChange={this.onChange}
+          onvalue-changed={this.onChange}
         />
       </div>
     );
