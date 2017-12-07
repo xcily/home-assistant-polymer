@@ -3,6 +3,7 @@
   "shell": "src/home-assistant.html",
   "fragments": [
     "panels/config/ha-panel-config.html",
+    "panels/config-adv/ha-panel-config-adv.html",
     "panels/dev-event/ha-panel-dev-event.html",
     "panels/dev-info/ha-panel-dev-info.html",
     "panels/dev-mqtt/ha-panel-dev-mqtt.html",
