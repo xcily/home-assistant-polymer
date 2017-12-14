@@ -1,0 +1,94 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="flow-layout">
+  <template>
+    <style>
+      .flow_layout_root {
+        -webkit-column-count: 1;
+           -moz-column-count: 1;
+                column-count: 1;
+        -webkit-column-gap: 8px;
+           -moz-column-gap: 8px;
+                column-gap: 8px;
+        counter-reset: item-counter;
+        padding: 8px;
+      }
+
+      div ::slotted(flow-item) {
+        display: block;
+        box-sizing: border-box;
+        -webkit-column-break-inside: avoid;
+           page-break-inside: avoid;
+                break-inside: avoid;
+        counter-increment: item-counter;
+        padding-bottom: 8px;
+      }
+
+      @media screen and (min-width: 300px) {
+        .flow_layout_root {
+          -webkit-column-count: 1;
+             -moz-column-count: 1;
+                  column-count: 1;
+        }
+      }
+      @media screen and (min-width: 600px) {
+        .flow_layout_root {
+          -webkit-column-count: 2;
+             -moz-column-count: 2;
+                  column-count: 2;
+        }
+      }
+      @media screen and (min-width: 900px) {
+        .flow_layout_root {
+          -webkit-column-count: 3;
+             -moz-column-count: 3;
+                  column-count: 3;
+        }
+      }
+
+      
+    </style>
+    <div class="flow_layout_root">
+
+        <slot></slot>
+
+
+    </div>
+
+
+  </template>
+</dom-module>
+
+<script>
+class FlowLayout extends Polymer.Element{
+  static get is() { return 'flow-layout'; }
+  static get properties() {
+    return {
+      columns: {
+        type: Number,
+        value: 1
+      },
+
+      columnWidth: {
+        type: Number,
+        value: 300
+      },
+
+
+
+    }
+  }
+
+  constructor() {
+    super();
+  }
+
+
+
+
+
+}
+customElements.define(FlowLayout.is, FlowLayout);
+</script>
+
+

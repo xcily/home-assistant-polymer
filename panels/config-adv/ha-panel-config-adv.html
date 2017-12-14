@@ -26,6 +26,7 @@
       route='[[route]]'
       pattern='/:page'
       data="{{_routeData}}"
+      tail="{{routeTail}}"
     ></app-route>
 
     <iron-media-query query="(min-width: 1040px)" query-matches="{{wide}}">
@@ -86,6 +87,7 @@
         page-name='entity-list'
         hass='[[hass]]'
         is-wide='[[isWide]]'
+        route='[[routeTail]]'
       ></ha-config-adv-entity-list>
 
       <hass-error-screen
@@ -117,6 +119,7 @@ class HaPanelConfigAdv extends window.hassMixins.EventsMixin(Polymer.Element) {
       },
 
       _routeData: Object,
+      routeTail: Object,
 
       wide: Boolean,
       wideSidebar: Boolean,
