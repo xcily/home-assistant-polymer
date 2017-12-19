@@ -1,0 +1,36 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../../bower_components/polymer/lib/mixins/mutable-data.html">
+
+<link rel="import" href="ha-entity-attribute.html">
+
+<dom-module id="ha-form-entity-attributes">
+  <template>
+    <style>
+      [hidden] {
+        display: none;
+      }
+    </style>
+    <template is='dom-repeat' items='{{attributes}}' mutable-data>
+      <ha-Entity-attribute
+        item="{{item}}"
+        hidden$="[[item.closed]]">
+      </ha-Entity-attribute>
+    </template>
+  </template>
+</dom-module>
+
+<script>
+class HaFormEntityAttributes extends Polymer.MutableData(Polymer.Element) {
+  static get is() { return 'ha-form-entity-attributes'; }
+
+  static get properties() {
+    return {
+      attributes: {
+        type: Array,
+        notify: true,
+      },
+    };
+  }
+}
+customElements.define(HaFormEntityAttributes.is, HaFormEntityAttributes);
+</script>

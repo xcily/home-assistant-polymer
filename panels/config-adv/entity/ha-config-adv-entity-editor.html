@@ -1,0 +1,382 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel='import' href='../../../bower_components/paper-listbox/paper-listbox.html'>
+<link rel='import' href='../../../bower_components/paper-item/paper-item.html'>
+<link rel="import" href="../../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel='import' href='../../../bower_components/app-route/app-route.html'>
+
+<link rel="import" href="../../../src/util/hass-util.html">
+<link rel="import" href="../../../src/resources/ha-style.html">
+<link rel="import" href="../../../src/util/hass-attributes-util.html">
+
+<link rel="import" href="./form/ha-form-entity-attributes.html">
+
+<dom-module id="ha-config-adv-entity-editor">
+  <template>
+    <style include="iron-flex ha-style ha-form-style">
+      .warning {
+        color: red;
+      }
+
+      .content {
+        padding: 28px 20px 0;
+        max-width: 1040px;
+        margin: 0 auto;
+      }
+      .form-group {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+        padding: 8px 16px;
+      }
+
+      .form-group label {
+        @apply(--layout-flex-2);
+      }
+
+      .form-group .form-control {
+        @apply(--layout-flex);
+      }
+
+      .form-group.vertical {
+        @apply(--layout-vertical);
+        @apply(--layout-start);
+      }
+      paper-card {
+        display: block;
+      }
+
+      .narrow.content {
+        max-width: 640px;
+      }
+
+      .card-actions {
+        @apply(--layout-horizontal);
+        @apply(--layout-justified);
+      }
+
+      .attributes-text {
+        padding-left: 20px;
+      }
+    </style>
+    <app-route
+      route="{{route}}"
+      pattern="/:entity_id"
+      data="{{routeData}}"
+      active="{{routeMatch]}}"
+    ></app-route>
+
+    <app-header-layout has-scrolling-region>
+      <app-header slot="header" fixed>
+        <app-toolbar>
+          <paper-icon-button
+            icon='mdi:arrow-left'
+            on-tap='_backTapped'
+          ></paper-icon-button>
+          <div main-title>Entity editor</div>
+        </app-toolbar>
+      </app-header>
+      <div class$='[[computeClasses(isWide)]]'>
+        <paper-card>
+          <div class='card-content'>
+            <div class='form-container'>
+              <template is='dom-if' if='[[computeShowWarning(localConfig, globalConfig)]]'>
+                <div class="warning">
+                  It seems that your configuration.yaml doesn't properly include customize.yaml<br>
+                  Changes made here won't affect your configuration.
+                </div>
+              </template>
+              <template is='dom-if' if='[[hasLocalAttributes]]'>
+                <h4 class="attributes-text">
+                  The following attributes are already set in customize.yaml<br>
+                </h4>
+                <ha-form-entity-attributes attributes="{{localAttributes}}"></ha-form-entity-attributes>
+              </template>
+              <template is='dom-if' if='[[hasGlobalAttributes]]'>
+                <h4 class="attributes-text">
+                  The following attributes are customized from outside of customize.yaml<br>
+                  Possibly via a domain, a glob or a different include.
+                </h4>
+                <ha-form-entity-attributes attributes="{{globalAttributes}}"></ha-form-entity-attributes>
+              </template>
+              <template is='dom-if' if='[[hasExistingAttributes]]'>
+                <h4 class="attributes-text">
+                  The following attributes of the entity are set programatically.<br>
+                  You can override them if you like.
+                </h4>
+                <ha-form-entity-attributes attributes="{{existingAttributes}}"></ha-form-entity-attributes>
+              </template>
+              <template is='dom-if' if='[[hasNewAttributes]]'>
+                <h4 class="attributes-text">
+                  The following attributes weren't set. Set them if you like.
+                </h4>
+                <ha-form-entity-attributes attributes="{{newAttributes}}"></ha-form-entity-attributes>
+              </template>
+              <div class='form-group'>
+                <paper-dropdown-menu
+                  label='Pick an attribute to override'
+                  class='flex'
+                  dynamic-align
+                >
+                  <paper-listbox
+                    slot="dropdown-content"
+                    selected='{{selectedNewAttribute}}'
+                  >
+                    <template is='dom-repeat' items='[[newAttributesOptions]]' as='option'>
+                      <paper-item>[[option]]</paper-item>
+                    </template>
+                  </paper-listbox>
+                </paper-dropdown-menu>
+              </div>
+            </div>
+          </div>
+          <div class='card-actions'>
+            <paper-button
+              on-tap='saveEntity'
+            >SAVE
+            </paper-button>
+            <template is='dom-if' if='[[allowDelete]]'>
+              <paper-button
+                class='warning'
+                on-tap='deleteEntity'
+              >DELETE
+              </paper-button>
+            </template>
+          </div>
+        </paper-card>
+      </div>
+    </app-header-layout>
+  </template>
+</dom-module>
+<script>
+  class HaConfigAdvEntityEditor extends window.hassMixins.EventsMixin(Polymer.Element) {
+    static get is() {
+      return 'ha-config-adv-entity-editor';
+    }
+
+    static get properties() {
+      return {
+        hass: Object,
+        route: Object,
+        routeData: Object,
+        isWide: Boolean,
+        entity: {
+          type: Object,
+          computed: 'computeEntity(hass, routeData)',
+        },
+        localAttributes: {
+          type: Array,
+          computed: 'computeLocalAttributes(localConfig)',
+        },
+        hasLocalAttributes: Boolean,
+
+        globalAttributes: {
+          type: Array,
+          computed: 'computeGlobalAttributes(localConfig, globalConfig)',
+        },
+        hasGlobalAttributes: Boolean,
+
+        existingAttributes: {
+          type: Array,
+          computed: 'computeExistingAttributes(localConfig, globalConfig, entity)',
+        },
+        hasExistingAttributes: Boolean,
+
+        hasNewAttributes: Boolean,
+        newAttributesOptions: Array,
+        selectedNewAttribute: {
+          type: Number,
+          value: -1,
+          observer: 'selectedNewAttributeObserver',
+        },
+        localConfig: {
+          type: Object,
+          computed: 'computeLoadEntity(entity)',
+        },
+        globalConfig: Object,
+        newAttributes: Object,
+      };
+    }
+
+    static get observers() {
+      return [
+        'attributesObserver(localAttributes.*, globalAttributes.*, existingAttributes.*, newAttributes.*)',
+      ];
+    }
+
+    _backTapped() {
+      history.back();
+    }
+
+    computeClasses(isWide) {
+      return isWide ? 'content ' : 'content narrow';
+    }
+
+    computeEntity(hass, routeData) {
+      var entity;
+      if (routeData) {
+        entity = hass.states[this.routeData.entity_id];
+      }
+      return entity;
+    }
+
+    computeLoadEntity(entity) {
+      this.entity = entity;
+      return this.hass.callApi('GET', 'config_adv/entity/config_adv/' + entity.entity_id)
+        .then((data) => {
+          this.localConfig = data.local;
+          this.globalConfig = data.global;x
+          this.newAttributes = [];
+        });
+    }
+
+    saveEntity() {
+      const data = {};
+      const attrs = this.localAttributes
+        .concat(this.globalAttributes, this.existingAttributes, this.newAttributes);
+      attrs.forEach((attr) => {
+        if (attr.closed || attr.secondary || !attr.attribute || !attr.value) return;
+        const value = attr.type === 'json' ? JSON.parse(attr.value) : attr.value;
+        if (!value) return;
+        data[attr.attribute] = value;
+      });
+
+      const objectId = this.entity.entity_id;
+      return this.hass.callApi('POST', 'config_adv/entity/config_adv/' + objectId, data);
+    }
+
+    computeIcon(stateObj) {
+      return window.hassUtil.stateIcon(stateObj);
+    }
+
+    _initOpenObject(key, value, secondary, config) {
+      return Object.assign({
+        attribute: key,
+        value: value,
+        closed: false,
+        domain: window.hassUtil.computeDomain(this.entity),
+        secondary: secondary,
+        description: key,
+      }, config);
+    }
+
+    _computeSingleAttribute(key, value, secondary) {
+      const config = window.hassAttributeUtil.LOGIC_STATE_ATTRIBUTES[key]
+        || {type: window.hassAttributeUtil.UNKNOWN_TYPE};
+      return this._initOpenObject(key, config.type === 'json' ? JSON.stringify(value) : value, secondary, config);
+    }
+
+    _computeAttributes(config, keys, secondary) {
+      return keys.map(key => this._computeSingleAttribute(key, config[key], secondary));
+    }
+
+    computeLocalAttributes(localConfig) {
+      if (!localConfig) return [];
+      const localKeys = Object.keys(localConfig);
+      const result = this._computeAttributes(localConfig, localKeys, false);
+      console.log('local:', result);
+      return result;
+    }
+
+    computeGlobalAttributes(localConfig, globalConfig) {
+      if (!localConfig || !globalConfig) return [];
+      const localKeys = Object.keys(localConfig);
+      const globalKeys = Object.keys(globalConfig).filter(key => !localKeys.includes(key));
+      console.log('globala：', this._computeAttributes(globalConfig, globalKeys, true));
+      return this._computeAttributes(globalConfig, globalKeys, true);
+    }
+
+    computeExistingAttributes(localConfig, globalConfig, entity) {
+      if (!localConfig || !globalConfig || !entity) return [];
+      const localKeys = Object.keys(localConfig);
+      const globalKeys = Object.keys(globalConfig);
+      const entityKeys = Object.keys(entity.attributes)
+        .filter(key => !localKeys.includes(key) && !globalKeys.includes(key));
+      return this._computeAttributes(entity.attributes, entityKeys, true);
+    }
+
+    computeShowWarning(localConfig, globalConfig) {
+      if (!localConfig || !globalConfig) return false;
+      return Object.keys(localConfig)
+        .some(key => JSON.stringify(globalConfig[key]) !== JSON.stringify(localConfig[key]));
+    }
+
+    filterFromAttributes(attributes) {
+      return key => !attributes || attributes.every(attr => attr.attribute !== key || attr.closed);
+    }
+
+    getNewAttributesOptions(localAttributes, globalAttributes, existingAttributes, newAttributes) {
+      const knownKeys =
+        Object.keys(window.hassAttributeUtil.LOGIC_STATE_ATTRIBUTES)
+          .filter((key) => {
+            const conf = window.hassAttributeUtil.LOGIC_STATE_ATTRIBUTES[key];
+            return conf && (!conf.domains || !this.entity ||
+              conf.domains.includes(window.hassUtil.computeDomain(this.entity)));
+          })
+          .filter(this.filterFromAttributes(localAttributes))
+          .filter(this.filterFromAttributes(globalAttributes))
+          .filter(this.filterFromAttributes(existingAttributes))
+          .filter(this.filterFromAttributes(newAttributes));
+      return knownKeys.sort().concat('Other');
+    }
+
+    attributesObserver() {
+      this.hasLocalAttributes =
+        this.localAttributes && this.localAttributes.some(attr => !attr.closed);
+      this.hasGlobalAttributes =
+        this.globalAttributes && this.globalAttributes.some(attr => !attr.closed);
+      this.hasExistingAttributes =
+        this.existingAttributes && this.existingAttributes.some(attr => !attr.closed);
+      this.hasNewAttributes =
+        this.newAttributes && this.newAttributes.some(attr => !attr.closed);
+      this.newAttributesOptions = this.getNewAttributesOptions(
+        this.localAttributes,
+        this.globalAttributes,
+        this.existingAttributes,
+        this.newAttributes
+      );
+    }
+
+    selectedNewAttributeObserver(selected) {
+      if (selected < 0) return;
+      const option = this.newAttributesOptions[selected];
+      if (selected === this.newAttributesOptions.length - 1) {
+        // The "Other" option.
+        const attr = this._initOpenObject('', '', false /* secondary */, {type: window.hassAttributeUtil.ADD_TYPE});
+        this.push('newAttributes', attr);
+        this.selectedNewAttribute = -1;
+        return;
+      }
+      let result = this.localAttributes.findIndex(attr => attr.attribute === option);
+      if (result >= 0) {
+        this.set('localAttributes.' + result + '.closed', false);
+        this.selectedNewAttribute = -1;
+        return;
+      }
+      result = this.globalAttributes.findIndex(attr => attr.attribute === option);
+      if (result >= 0) {
+        this.set('globalAttributes.' + result + '.closed', false);
+        this.selectedNewAttribute = -1;
+        return;
+      }
+      result = this.existingAttributes.findIndex(attr => attr.attribute === option);
+      if (result >= 0) {
+        this.set('existingAttributes.' + result + '.closed', false);
+        this.selectedNewAttribute = -1;
+        return;
+      }
+      result = this.newAttributes.findIndex(attr => attr.attribute === option);
+      if (result >= 0) {
+        this.set('newAttributes.' + result + '.closed', false);
+        this.selectedNewAttribute = -1;
+        return;
+      }
+      const attr = this._computeSingleAttribute(option, '', false /* secondary */);
+      this.push('newAttributes', attr);
+      this.selectedNewAttribute = -1;
+    }
+  }
+  customElements.define(HaConfigAdvEntityEditor.is, HaConfigAdvEntityEditor);
+</script>

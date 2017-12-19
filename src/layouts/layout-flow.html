@@ -1,0 +1,15 @@
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="layout-flow">
+  <template>
+
+
+  </template>
+</dom-module>
+
+<script>
+class HaAppLayout extends customElements.get('app-header-layout') {
+  static get is() { return 'ha-app-layout'; }
+}
+customElements.define(HaAppLayout.is, HaAppLayout);
+</script>
