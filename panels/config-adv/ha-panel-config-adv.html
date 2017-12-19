@@ -14,6 +14,7 @@
 <link rel="import" href="./zwave/ha-config-zwave.html">
 <link rel="import" href="./customize/ha-config-customize.html"> -->
 <link rel="import" href="./entity/ha-config-adv-entity-list.html">
+<link rel="import" href="./entity/ha-config-adv-entity-editor.html">
 
 <dom-module id="ha-panel-config-adv">
   <template>
@@ -89,6 +90,14 @@
         is-wide='[[isWide]]'
         route='[[routeTail]]'
       ></ha-config-adv-entity-list>
+
+
+      <ha-config-adv-entity-editor
+        page-name='entity-editor'
+        hass='[[hass]]'
+        is-wide='[[isWide]]'
+        route='[[routeTail]]'
+      ></ha-config-adv-entity-editor>
 
       <hass-error-screen
         page-name='not-found'
