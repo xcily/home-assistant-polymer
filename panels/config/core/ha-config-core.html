@@ -7,7 +7,7 @@
 <link rel='import' href='../../../src/layouts/ha-app-layout.html'>
 
 <link rel="import" href="./ha-config-section-core.html">
-<!-- <link rel="import" href="./ha-config-section-group.html"> -->
+<link rel="import" href="./ha-config-section-group.html">
 <link rel="import" href="./ha-config-section-hassbian.html">
 <link rel="import" href="./ha-config-section-push-notifications.html">
 <link rel="import" href="./ha-config-section-translation.html">
@@ -45,12 +45,11 @@
       <div class$='[[computeClasses(isWide)]]'>
         <!--
           Sortable.js doesn't work in Polymer 2 making this panel useless.
-          Disabling for now.
+          Disabling for now.-->
         <ha-config-section-group
           is-wide='[[isWide]]'
           hass='[[hass]]'
         ></ha-config-section-group>
-        -->
 
         <ha-config-section-core
           is-wide='[[isWide]]'

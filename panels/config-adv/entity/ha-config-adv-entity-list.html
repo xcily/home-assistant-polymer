@@ -45,15 +45,15 @@
 
         <div class$='[[computeClasses(isWide)]]'>
 
-          <paper-tabs 
+          <paper-tabs
             scrollable
             selected='[[currentView]]'
             attr-for-selected='data-group'
             on-iron-activate='handleViewSelected'
           >
-            
+
             <paper-tab data-group=''>Ungrouped</paper-tab>
-            
+
             <template is='dom-repeat' items='[[groups.groups]]' as='group' on-tap='switchTab'>
               <paper-tab data-group$='[[group.entity_id]]'>
                 [[group.attributes.friendly_name]]
@@ -67,13 +67,13 @@
 
 
       <iron-pages
-      attr-for-selected='data-view'
-      selected='[[currentView]]'
-      selected-attribute='view-visible'
+        attr-for-selected='data-view'
+        selected='[[currentView]]'
+        selected-attribute='view-visible'
       >
         <flow-layout data-view=''>
           <template is='dom-repeat' items='[[getEntitiesFromUnGroup(groups.ungrouped)]]' as='entity'>
-            <flow-item  on-tap='entityTapped'>
+            <flow-item on-tap='entityTapped'>
               <paper-card>
                 <div class="card-content">
                   <a href='#'>[[entity.attributes.friendly_name]]</a>
@@ -88,19 +88,19 @@
         </flow-layout>
         <template is='dom-repeat' items='[[groups.groups]]' as='group'>
           <flow-layout data-view$='[[group.entity_id]]'>
-            <template is='dom-repeat' items='[[getEntitiesByGroup(group)]]' as='entity'>
+            <template is='dom-repeat' items='[[getEntitiesByGroup(hass, group)]]' as='entity'>
               <!-- <template is='dom-if' if='[[!computeIsGroup(entity.entity_id)]]'> -->
-                <flow-item  on-tap='entityTapped'>
-                  <paper-card>
-                    <div class="card-content">
-                      <a href='#'>[[entity.attributes.friendly_name]]</a>
-                      <div>[[entity.entity_id]]</div>
-                      <div>[[entity.state]]</div>
+              <flow-item on-tap='entityTapped'>
+                <paper-card>
+                  <div class="card-content">
+                    <a href='#'>[[entity.attributes.friendly_name]]</a>
+                    <div>[[entity.entity_id]]</div>
+                    <div>[[entity.state]]</div>
 
-                      <div>[[console.log(entity)]]</div>
-                    </div>
-                  </paper-card>
-                </flow-item>
+                    <div>[[console.log(entity)]]</div>
+                  </div>
+                </paper-card>
+              </flow-item>
               <!-- </template> -->
             </template>
           </flow-layout>
@@ -109,116 +109,101 @@
 
     </app-header-layout>
 
-    
 
   </template>
 </dom-module>
 
 
 <script>
-class HaConfigAdvEntityList extends window.hassMixins.EventsMixin(Polymer.Element) {
-  static get is() { return 'ha-config-adv-entity-list'; }
-
-  static get properties() {
-    return {
-      hass: Object,
-      isWide: Boolean,
-
-
-      route: Object,
-      routeData: Object,
-      routeMatch: Boolean,
-
-      entities: {
-        type: Array,
-        computed: 'computeEntities(hass)',
-      },
-
-      groups: {
-        type: Array,
-        computed: 'computeGroups(hass)',
-      },
-
-      currentView: {
-        type: String,
-        computed: '_computeCurrentView(routeMatch, routeData)',
-      },
-      // ,
-
-      // entityConfig: {
-      //   type: Object,
-      //   value: {
-      //     component: 'ha-form-customize',
-      //     computeSelectCaption: stateObj =>
-      //       window.hassUtil.computeStateName(stateObj) + ' (' + window.hassUtil.computeDomain(stateObj) + ')'
-      //   }
-      // },
-    };
-  }
-
-  _computeCurrentView(routeMatch, routeData) {
-    return routeMatch ? routeData.view : '';
-  }
-
-  computeClasses(isWide) {
-    return isWide ? 'content' : 'content narrow';
-  }
-
-  _backTapped() {
-    history.back();
-  }
-
-  getEntitiesFromUnGroup(ungrouped) {
-    var entities=[];
-    for(var key in ungrouped){
-       entities.push(ungrouped[key]);
+  class HaConfigAdvEntityList extends window.hassMixins.EventsMixin(Polymer.Element) {
+    static get is() {
+      return 'ha-config-adv-entity-list';
     }
-    return entities;
-  }
 
-  getEntitiesByGroup(group) {
-    var entitiesObj = window.HAWS.getGroupEntities(this.hass.states, group);
-    var entities=[];
-    for(var key in entitiesObj){
-       entities.push(entitiesObj[key]);
+    static get properties() {
+      return {
+        hass: Object,
+        isWide: Boolean,
+
+
+        route: Object,
+        routeData: Object,
+        routeMatch: Boolean,
+
+        entities: {
+          type: Array,
+          computed: 'computeEntities(hass)',
+        },
+
+        groups: {
+          type: Array,
+          computed: 'computeGroups(hass)',
+        },
+
+        currentView: {
+          type: String,
+          computed: '_computeCurrentView(routeMatch, routeData)',
+        },
+      };
     }
-    return entities;
-  }
 
-  computeEntities(hass) {
-    return Object.keys(hass.states)
-      .map(key => hass.states[key])
-      .sort(window.hassUtil.sortByName);
-  }
+    _computeCurrentView(routeMatch, routeData) {
+      return routeMatch ? routeData.view : '';
+    }
 
-  computeGroups(hass) {
-    console.log(window.HAWS.splitByGroups(hass.states));
-    return window.HAWS.splitByGroups(hass.states);
-  }
+    computeClasses(isWide) {
+      return isWide ? 'content' : 'content narrow';
+    }
 
-  computeIsGroup(entity) {
-    return extractDomain(entity.entity_id)=='group';
-  }
+    _backTapped() {
+      history.back();
+    }
 
-  handleViewSelected(ev) {
-    var view = ev.detail.item.getAttribute('data-group') || null;
-    var current = this.currentView;
+    getEntitiesFromUnGroup(ungrouped) {
+      return Object.keys(ungrouped)
+        .map(key => ungrouped[key]);
+    }
 
-    if (view !== current) {
-      var path = '/config-adv/entity-list';
-      if (view) {
-        path += '/' + view;
+    getEntitiesByGroup(hass, group) {
+      var entities = window.HAWS.getGroupEntities(hass.states, group);
+      return Object.keys(entities)
+        .map(key => entities[key]);
+    }
+
+    computeEntities(hass) {
+      return Object.keys(hass.states)
+        .map(key => hass.states[key])
+        .sort(window.hassUtil.sortByName);
+    }
+
+    computeGroups(hass) {
+      return window.HAWS.splitByGroups(hass.states);
+    }
+
+    computeIsGroup(entity) {
+      return window.HAWS.extractDomain(entity.entity_id) == 'group';
+    }
+
+    handleViewSelected(ev) {
+      var view = ev.detail.item.getAttribute('data-group') || null;
+      var current = this.currentView;
+
+      if (view !== current) {
+        var path = '/config-adv/entity-list';
+        if (view) {
+          path += '/' + view;
+        }
+        history.replaceState(null, null, path);
+        this.fire('location-changed');
       }
-      history.pushState(null, null, path);
-      this.fire('location-changed');
+    }
+
+    entityTapped(ev) {
+
     }
   }
 
-  entityTapped(ev) {
-  	alert(3);
-  }
-}
-customElements.define(HaConfigAdvEntityList.is, HaConfigAdvEntityList);
+  customElements.define(HaConfigAdvEntityList.is, HaConfigAdvEntityList);
 </script>
 
 
