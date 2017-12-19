@@ -224,10 +224,10 @@
 
     computeLoadEntity(entity) {
       this.entity = entity;
-      return this.hass.callApi('GET', 'config_adv/entity/config/' + entity.entity_id)
+      return this.hass.callApi('GET', 'config_adv/entity/config_adv/' + entity.entity_id)
         .then((data) => {
           this.localConfig = data.local;
-          this.globalConfig = data.global;
+          this.globalConfig = data.global;x
           this.newAttributes = [];
         });
     }
@@ -244,7 +244,7 @@
       });
 
       const objectId = this.entity.entity_id;
-      return this.hass.callApi('POST', 'config_adv/entity/config/' + objectId, data);
+      return this.hass.callApi('POST', 'config_adv/entity/config_adv/' + objectId, data);
     }
 
     computeIcon(stateObj) {
