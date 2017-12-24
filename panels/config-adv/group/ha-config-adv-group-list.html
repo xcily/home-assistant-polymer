@@ -1,0 +1,98 @@
+<link rel="import" href="../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
+<link rel='import' href='../../../bower_components/app-route/app-route.html'>
+
+
+<dom-module id="ha-config-adv-group-list">
+  <template>
+
+    <style include="ha-style">
+    </style>
+
+    <app-route
+      route="{{route}}"
+      pattern="/:view"
+      data="{{routeData}}"
+      active="{{routeMatch}}"
+    ></app-route>
+    <app-header-layout has-scrolling-region>
+      <app-header slot="header" fixed>
+        <app-toolbar>
+          <paper-icon-button
+            icon='mdi:arrow-left'
+            on-tap='_backTapped'
+          ></paper-icon-button>
+          <div main-title>Group List</div>
+        </app-toolbar>
+
+      </app-header>
+
+      <flow-layout>
+        <template is='dom-repeat' items='[[getEntitiesByGroup(hass, group)]]' as='entity'>
+          <flow-item on-tap='entityTapped'>
+            <paper-card>
+              <div class="card-content">
+              </div>
+            </paper-card>
+          </flow-item>
+        </template>
+      </flow-layout>
+
+    </app-header-layout>
+
+
+  </template>
+</dom-module>
+
+
+<script>
+  class HaConfigAdvGroupList extends window.hassMixins.EventsMixin(Polymer.Element) {
+    static get is() {
+      return 'ha-config-adv-group-list';
+    }
+
+    static get properties() {
+      return {
+        hass: Object,
+        isWide: Boolean,
+
+
+        route: Object,
+        routeData: Object,
+        routeMatch: Boolean,
+
+        groups: {
+          type: Array,
+          computed: 'computeGroups(hass)',
+        },
+
+        groupId: {
+          type: String,
+          computed: 'computeGroupId(routeData)',
+        }
+      }
+    }
+
+    computeGroupId(routeData){
+      console.log("group routeData:%O",routeData.view);
+      return routeData.view;
+    }
+
+
+    _backTapped() {
+      history.back();
+    }
+
+    computeGroups(hass) {
+      return window.HAWS.splitByGroups(hass.states);
+    }
+  }
+  customElements.define(HaConfigAdvGroupList.is, HaConfigAdvGroupList);
+</script>
+

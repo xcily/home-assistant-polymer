@@ -3,7 +3,12 @@
 
 <dom-module id='ha-entity-boolean'>
   <template>
-    [[item.description]]<paper-toggle-button disabled='[[item.secondary]]' checked="{{item.value}}" style="float: right;"></paper-toggle-button>
+    <paper-checkbox
+      disabled='[[item.secondary]]'
+      checked="{{item.value}}"
+    >
+      [[item.description]]
+    </paper-checkbox>
   </template>
 </dom-module>
 

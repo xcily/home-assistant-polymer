@@ -1,0 +1,150 @@
+<link rel='import' href='../../bower_components/polymer/polymer-element.html'>
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-dialog/paper-dialog.html">
+
+<!--<link rel='import' href='../../src/util/hass-mixins.html'>-->
+
+
+<dom-module id='ha-icon-picker'>
+  <template>
+    <style is="custom-style">
+
+      :host {
+
+      }
+
+      paper-dialog {
+        padding: 10px;
+      }
+
+      paper-icon-button {
+        padding: 12px;
+        margin: 0 0 6px 6px;
+        width: 48px;
+        height: 48px;
+      }
+
+      paper-icon-button.clear {
+        padding: 6px;
+        margin: 0px;
+        width: 24px;
+        height: 24px;
+        line-height: 12px;
+      }
+
+      paper-input {
+        padding: 0px;
+        margin: 0 12px;
+      }
+
+    </style>
+
+    <paper-dialog id="dialog">
+      <paper-input id="search" label="Search" value="{{key}}" no-label-float>
+        <iron-icon icon="mdi:magnify" slot="prefix"></iron-icon>
+        <paper-icon-button class="clear" slot="suffix" on-tap="clearInput" icon="mdi:close" alt="clear" title="clear">
+        </paper-icon-button>
+      </paper-input>
+      <paper-dialog-scrollable>
+        <template is="dom-repeat" items="{{currentNames}}">
+          <paper-icon-button icon="mdi:{{item}}" on-tap="selectedIcon"></paper-icon-button>
+        </template>
+      </paper-dialog-scrollable>
+    </paper-dialog>
+    <slot on-tap="onTap"></slot>
+
+  </template>
+</dom-module>
+
+<script>
+  class HaIconPicker extends window.hassMixins.EventsMixin(Polymer.Element) {
+    static get is() {
+      return 'ha-icon-picker';
+    }
+
+    static get properties() {
+      return {
+        _mdiIconNames: {
+          type: Array,
+          computed: 'computedMdiIconNames()',
+        },
+
+        _mdiIconNamesString: {
+          computed: 'computedMdiIconNamesString(_mdiIconNames)',
+        },
+        _usualNames: {
+          type: Array,
+          value: [
+            'lightbulb', 'ceiling-light', 'lamp',
+            'power-socket', 'bell', 'cctv', 'thermometer', 'gauge',
+            'television-classic', 'fridge', 'washing-machine', 'desktop-mac',
+            'door', 'home', 'account', 'hotel', 'sofa', 'cellphone-android','itunes','map-marker','wifi'
+          ]
+        },
+        currentNames: {
+          type: Array,
+          computed: 'computedCurrentNames(_mdiIconNames, _usualNames, key, _mdiIconNamesString)',
+        },
+        key: String
+      };
+    }
+
+    computedMdiIconNamesString(_mdiIconNames){
+      return '"'+_mdiIconNames.join('""')+'"';
+    }
+
+    selectedIcon(ev) {
+      var slot = this.shadowRoot.querySelector('slot');
+      var dialog = this.shadowRoot.querySelector('#dialog');
+      var btn = slot.assignedNodes().filter(v => v.nodeName != '#text');
+      if (btn[0] && btn[0].icon) {
+        btn[0].icon = 'mdi:'+ev.model.item;
+        dialog.close();
+      }
+    }
+
+    clearInput() {
+      var input = this.shadowRoot.querySelector('#search');
+      input.value = '';
+    }
+
+    onTap() {
+      var dialog = this.shadowRoot.querySelector('#dialog');
+      dialog.open();
+    }
+
+    ready() {
+      super.ready();
+    }
+
+    computedMdiIconNames() {
+      var icons = new Polymer.IronMeta({type: 'iconset'}).list;
+      var mdiIcons = icons.find(v => v.name === 'mdi').getIconNames();
+      mdiIcons=mdiIcons.map(v=>v.substring(4));
+      console.log(mdiIcons);
+      return mdiIcons;
+    }
+
+    computedCurrentNames(_mdiIconNames, _usualNames, key, _mdiIconNamesString) {
+      if (this.shadowRoot) {
+        key = key.trim();
+        if (key != '') {
+          //console.log(_mdiIconNames.length);
+          var names = _mdiIconNames.filter(v => v.indexOf(key) > -1);
+          // var names=[];
+          // var rx = new RegExp('"([^"]*'+key+'[^"]*)"','gi');
+          // var result = '';
+          // while (result = rx.exec(_mdiIconNamesString)) {
+          //   names.push(result[1]);
+          // }
+          return names.slice(0,100);
+        } else {
+          return _usualNames;
+        }
+      }
+      return _usualNames;
+    }
+  }
+
+  customElements.define(HaIconPicker.is, HaIconPicker);
+</script>
