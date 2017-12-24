@@ -48,7 +48,9 @@
       }
     </style>
     <div id='wrapper' class='form-group'></div>
-    <paper-icon-button class="button" icon="[[getIcon(item.secondary)]]" on-tap="tapButton"></paper-icon-button>
+    <template is='dom-if' if='[[itemEntityType]]'>
+      <paper-icon-button icon="mdi:minus" on-tap='tapButton' class="button" ></paper-icon-button>
+    </template>
   </template>
 </dom-module>
 
@@ -62,20 +64,15 @@ class HaEntityAttribute extends Polymer.Element {
         type: Object,
         notify: true,
         observer: 'itemObserver',
+      },
+      itemEntityType: {
+        type: Boolean,
+        value: false,
       }
     };
   }
-
   tapButton() {
-    if (this.item.secondary) {
-      this.item = Object.assign({}, this.item, { secondary: false });
-    } else {
       this.item = Object.assign({}, this.item, { closed: true });
-    }
-  }
-
-  getIcon(secondary) {
-    return secondary ? 'mdi:pencil' : 'mdi:close';
   }
 
   itemObserver(item) {
@@ -95,6 +92,9 @@ class HaEntityAttribute extends Polymer.Element {
       child.addEventListener('item-changed', () => {
         this.item = Object.assign({}, child.item);
       });
+    }
+    if(!this.item.attribute){
+        this.itemEntityType = true;
     }
     child.setProperties({ item: this.item });
     if (child.parentNode === null) {

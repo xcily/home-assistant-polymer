@@ -26,6 +26,7 @@
         max-width: 1040px;
         margin: 0 auto;
       }
+
       .form-group {
         @apply(--layout-horizontal);
         @apply(--layout-center);
@@ -44,6 +45,7 @@
         @apply(--layout-vertical);
         @apply(--layout-start);
       }
+
       paper-card {
         display: block;
       }
@@ -58,7 +60,14 @@
       }
 
       .attributes-text {
-        padding-left: 20px;
+        padding-left: 0px;
+        padding-top: 20px;
+      }
+      .plus-button {
+        width: 16px;
+        height: 16px;
+        margin-left: 16px;
+        flex: 0 0 16px;
       }
     </style>
     <app-route
@@ -79,59 +88,72 @@
         </app-toolbar>
       </app-header>
       <div class$='[[computeClasses(isWide)]]'>
-        <paper-card>
+        <template is='dom-if' if='[[computeShowWarning(localConfig, homebridgeConfig)]]'>
+          <paper-card>
+            <div class='card-actions'>
+                <div class='form-content'>              
+                      <div class="warning">
+                        It seems that your configuration.yaml doesn't properly include customize.yaml<br>
+                        Changes made here won't affect your configuration.
+                      </div>        
+                </div>
+              </div>
+          </paper-card>
+        </template>
+        <template is='dom-if' if='[[hasBasisAttributes]]'>
+          <div><h4 class="attributes-text">BASE Attributes: </h4></div>
+          <paper-card>
+            <div class='card-actions'>
+              <div class='form-content'>
+                  <ha-form-entity-attributes attributes="{{basisAttributes}}"></ha-form-entity-attributes>         
+              </div>
+            </div>
+          </paper-card>
+        </template>
+        <template is='dom-if' if='[[hasLocalAttributes]]'>
+          <div><h4 class="attributes-text">Entity Attributes: </h4></div>
+           <paper-card>
+            <div class='card-actions'>
+              <div class='form-content'>              
+                  <ha-form-entity-attributes attributes="{{localAttributes}}"></ha-form-entity-attributes>
+              </div>
+            </div>
+          </paper-card>
+        </template>
+        <template is='dom-if' if='[[hasHomebridgeAttributes]]'>
+          <div><h4 class="attributes-text">HomeBridge Attributes: </h4></div>
+          <paper-card>
+            <div class='card-actions'>
+              <div class='form-content'>              
+                  <ha-form-entity-attributes attributes="{{homebridgeAttributes}}"></ha-form-entity-attributes>
+              </div>
+            </div>
+          </paper-card>
+        </template>
+        <template is='dom-if' if='[[hasOtherAttributes]]'>
+           <div><h4 class="attributes-text">Other Attributes: </h4></div>
+           <paper-card>
+            <div class='card-actions'>
+              <div class='form-content'>
+                    <ha-form-entity-attributes attributes="{{otherAttributes}}"></ha-form-entity-attributes>
+              </div>
+            </div>
+          </paper-card>
+        </template>
+        <div><h4 class="attributes-text">Customize Attributes: </h4></div>
+         <paper-card>
           <div class='card-content'>
             <div class='form-container'>
-              <template is='dom-if' if='[[computeShowWarning(localConfig, globalConfig)]]'>
-                <div class="warning">
-                  It seems that your configuration.yaml doesn't properly include customize.yaml<br>
-                  Changes made here won't affect your configuration.
-                </div>
-              </template>
-              <template is='dom-if' if='[[hasLocalAttributes]]'>
-                <h4 class="attributes-text">
-                  The following attributes are already set in customize.yaml<br>
-                </h4>
-                <ha-form-entity-attributes attributes="{{localAttributes}}"></ha-form-entity-attributes>
-              </template>
-              <template is='dom-if' if='[[hasGlobalAttributes]]'>
-                <h4 class="attributes-text">
-                  The following attributes are customized from outside of customize.yaml<br>
-                  Possibly via a domain, a glob or a different include.
-                </h4>
-                <ha-form-entity-attributes attributes="{{globalAttributes}}"></ha-form-entity-attributes>
-              </template>
-              <template is='dom-if' if='[[hasExistingAttributes]]'>
-                <h4 class="attributes-text">
-                  The following attributes of the entity are set programatically.<br>
-                  You can override them if you like.
-                </h4>
-                <ha-form-entity-attributes attributes="{{existingAttributes}}"></ha-form-entity-attributes>
-              </template>
               <template is='dom-if' if='[[hasNewAttributes]]'>
-                <h4 class="attributes-text">
-                  The following attributes weren't set. Set them if you like.
-                </h4>
                 <ha-form-entity-attributes attributes="{{newAttributes}}"></ha-form-entity-attributes>
-              </template>
+              </template>          
               <div class='form-group'>
-                <paper-dropdown-menu
-                  label='Pick an attribute to override'
-                  class='flex'
-                  dynamic-align
-                >
-                  <paper-listbox
-                    slot="dropdown-content"
-                    selected='{{selectedNewAttribute}}'
-                  >
-                    <template is='dom-repeat' items='[[newAttributesOptions]]' as='option'>
-                      <paper-item>[[option]]</paper-item>
-                    </template>
-                  </paper-listbox>
-                </paper-dropdown-menu>
+                 <paper-icon-button icon="mdi:plus" on-tap='addCustomizeAttributes' ></paper-icon-button>
               </div>
             </div>
           </div>
+        </paper-card>
+        <paper-card>
           <div class='card-actions'>
             <paper-button
               on-tap='saveEntity'
@@ -145,6 +167,7 @@
               </paper-button>
             </template>
           </div>
+          
         </paper-card>
       </div>
     </app-header-layout>
@@ -166,23 +189,29 @@
           type: Object,
           computed: 'computeEntity(hass, routeData)',
         },
+        basisAttributes: {
+          type: Array,
+          computed: 'computeBasisAttributes(basisConfig,entity)',
+        },
+        hasBasisAttributes: Boolean,
+
         localAttributes: {
           type: Array,
-          computed: 'computeLocalAttributes(localConfig)',
+          computed: 'computeLocalAttributes(localConfig, basisConfig, entity)',
         },
         hasLocalAttributes: Boolean,
 
-        globalAttributes: {
+        homebridgeAttributes: {
           type: Array,
-          computed: 'computeGlobalAttributes(localConfig, globalConfig)',
+          computed: 'computeHomebridgeAttributes(localConfig, homebridgeConfig, basisConfig, entity)',
         },
-        hasGlobalAttributes: Boolean,
+        hasHomebridgeAttributes: Boolean,
 
-        existingAttributes: {
+        otherAttributes: {
           type: Array,
-          computed: 'computeExistingAttributes(localConfig, globalConfig, entity)',
+          computed: 'computeOtherAttributes(localConfig, homebridgeConfig, basisConfig, entity)',
         },
-        hasExistingAttributes: Boolean,
+        hasOtherAttributes: Boolean,
 
         hasNewAttributes: Boolean,
         newAttributesOptions: Array,
@@ -191,24 +220,41 @@
           value: -1,
           observer: 'selectedNewAttributeObserver',
         },
+
+        basisConfig: {
+          type: Object,
+          value: {
+            friendly_name: '',
+            hidden: '',
+            icon: '',
+          }
+        },
         localConfig: {
           type: Object,
-          computed: 'computeLoadEntity(entity)',
+          value: {
+            device_class: '',
+            emulated_hue: '',
+          },
         },
-        globalConfig: Object,
-        newAttributes: Object,
+        homebridgeConfig: {
+          type: Object,
+          value: {
+            homebridge_name: '',
+            homebridge_hidden: '',
+          },
+        },
+        newAttributes: {
+          type: Object,
+          value: [],
+        },
       };
     }
 
+
     static get observers() {
       return [
-        'attributesObserver(localAttributes.*, globalAttributes.*, existingAttributes.*, newAttributes.*)',
+        'attributesObserver(localAttributes.*, homebridgeAttributes.*, basisAttributes.*, otherAttributes.*, newAttributes.*)',
       ];
-    }
-
-    ready() {
-      console.log('ready');
-      super.ready();
     }
 
     _backTapped() {
@@ -219,28 +265,22 @@
       return isWide ? 'content ' : 'content narrow';
     }
 
+    computeEntityId(routeData) {
+      return routeData.entity_id;
+    }
+
     computeEntity(hass, routeData) {
       var entity;
       if (routeData) {
-        entity = hass.states[this.routeData.entity_id];
+        entity = hass.states[routeData.entity_id];
       }
       return entity;
-    }
-
-    computeLoadEntity(entity) {
-      this.entity = entity;
-      return this.hass.callApi('GET', 'config_adv/entity/config_adv/' + entity.entity_id)
-        .then((data) => {
-          this.localConfig = data.local;
-          this.globalConfig = data.global;
-          this.newAttributes = [];
-        });
     }
 
     saveEntity() {
       const data = {};
       const attrs = this.localAttributes
-        .concat(this.globalAttributes, this.existingAttributes, this.newAttributes);
+        .concat(this.homebridgeAttributes, this.otherAttributes, this.newAttributes, this.basisAttributes);
       attrs.forEach((attr) => {
         if (attr.closed || attr.secondary || !attr.attribute || !attr.value) return;
         const value = attr.type === 'json' ? JSON.parse(attr.value) : attr.value;
@@ -249,7 +289,7 @@
       });
 
       const objectId = this.entity.entity_id;
-      return this.hass.callApi('POST', 'config_adv/entity/config_adv/' + objectId, data);
+      return this.hass.callApi('POST', 'config/entity/config_adv/' + objectId, data);
     }
 
     computeIcon(stateObj) {
@@ -277,111 +317,69 @@
       return keys.map(key => this._computeSingleAttribute(key, config[key], secondary));
     }
 
-    computeLocalAttributes(localConfig) {
-      if (!localConfig) return [];
-      const localKeys = Object.keys(localConfig);
-      const result = this._computeAttributes(localConfig, localKeys, false);
-      console.log('local:', result);
+    computeLocalAttributes(localConfig, basisConfig, entity) {
+      if (!localConfig || !basisConfig || !entity) return [];
+      const basisKeys = Object.keys(basisConfig);
+      const localKeys = Object.keys(localConfig).filter(key => !basisKeys.includes(key));
+      const result = this._computeAttributes(entity.attributes, localKeys, false);
       return result;
     }
 
-    computeGlobalAttributes(localConfig, globalConfig) {
-      if (!localConfig || !globalConfig) return [];
+
+    computeBasisAttributes(basisConfig, entity) {
+      if (!basisConfig || !entity) return [];
+      const basisKeys = Object.keys(basisConfig);
+      return this._computeAttributes(entity.attributes, basisKeys, false);
+    }
+
+    computeHomebridgeAttributes(localConfig, homebridgeConfig, basisConfig, entity) {
+      if (!localConfig || !homebridgeConfig || !basisConfig || !entity) return [];
       const localKeys = Object.keys(localConfig);
-      const globalKeys = Object.keys(globalConfig).filter(key => !localKeys.includes(key));
-      console.log('globala：', this._computeAttributes(globalConfig, globalKeys, true));
-      return this._computeAttributes(globalConfig, globalKeys, true);
+      const basisKeys = Object.keys(basisConfig);
+      const homebridgeKeys = Object.keys(homebridgeConfig)
+        .filter(key => !localKeys.includes(key) && !basisKeys.includes(key));
+      return this._computeAttributes(entity.attributes, homebridgeKeys, false);
     }
 
-    computeExistingAttributes(localConfig, globalConfig, entity) {
-      if (!localConfig || !globalConfig || !entity) return [];
+    computeOtherAttributes(localConfig, homebridgeConfig, basisConfig, entity) {
+      if (!localConfig || !homebridgeConfig || !entity || !basisConfig) return [];
       const localKeys = Object.keys(localConfig);
-      const globalKeys = Object.keys(globalConfig);
-      const entityKeys = Object.keys(entity.attributes)
-        .filter(key => !localKeys.includes(key) && !globalKeys.includes(key));
-      return this._computeAttributes(entity.attributes, entityKeys, true);
-    }
-
-    computeShowWarning(localConfig, globalConfig) {
-      if (!localConfig || !globalConfig) return false;
-      return Object.keys(localConfig)
-        .some(key => JSON.stringify(globalConfig[key]) !== JSON.stringify(localConfig[key]));
-    }
-
-    filterFromAttributes(attributes) {
-      return key => !attributes || attributes.every(attr => attr.attribute !== key || attr.closed);
-    }
-
-    getNewAttributesOptions(localAttributes, globalAttributes, existingAttributes, newAttributes) {
-      const knownKeys =
+      const basisKeys = Object.keys(basisConfig);
+      const homebridgeKeys = Object.keys(homebridgeConfig);
+      const otherKeys =
         Object.keys(window.hassAttributeUtil.LOGIC_STATE_ATTRIBUTES)
           .filter((key) => {
             const conf = window.hassAttributeUtil.LOGIC_STATE_ATTRIBUTES[key];
             return conf && (!conf.domains || !this.entity ||
               conf.domains.includes(window.hassUtil.computeDomain(this.entity)));
-          })
-          .filter(this.filterFromAttributes(localAttributes))
-          .filter(this.filterFromAttributes(globalAttributes))
-          .filter(this.filterFromAttributes(existingAttributes))
-          .filter(this.filterFromAttributes(newAttributes));
-      return knownKeys.sort().concat('Other');
+          }) 
+          .filter((key) => !localKeys.includes(key) && !basisKeys.includes(key) && !homebridgeKeys.includes(key));
+      return this._computeAttributes(entity.attributes, otherKeys, false);
+    }
+
+    computeShowWarning(localConfig, homebridgeConfig) {
+      if (!localConfig || !homebridgeConfig) return false;
+      return Object.keys(localConfig)
+        .some(key => JSON.stringify(homebridgeConfig[key]) !== JSON.stringify(localConfig[key]));
     }
 
     attributesObserver() {
+      this.hasBasisAttributes =
+        this.basisAttributes && this.basisAttributes.some(attr => !attr.closed);
       this.hasLocalAttributes =
         this.localAttributes && this.localAttributes.some(attr => !attr.closed);
-      this.hasGlobalAttributes =
-        this.globalAttributes && this.globalAttributes.some(attr => !attr.closed);
-      this.hasExistingAttributes =
-        this.existingAttributes && this.existingAttributes.some(attr => !attr.closed);
+      this.hasHomebridgeAttributes =
+        this.homebridgeAttributes && this.homebridgeAttributes.some(attr => !attr.closed);
+      this.hasOtherAttributes =
+        this.otherAttributes && this.otherAttributes.some(attr => !attr.closed);
       this.hasNewAttributes =
         this.newAttributes && this.newAttributes.some(attr => !attr.closed);
-      this.newAttributesOptions = this.getNewAttributesOptions(
-        this.localAttributes,
-        this.globalAttributes,
-        this.existingAttributes,
-        this.newAttributes
-      );
     }
-
-    selectedNewAttributeObserver(selected) {
-      if (selected < 0) return;
-      const option = this.newAttributesOptions[selected];
-      if (selected === this.newAttributesOptions.length - 1) {
-        // The "Other" option.
-        const attr = this._initOpenObject('', '', false /* secondary */, {type: window.hassAttributeUtil.ADD_TYPE});
-        this.push('newAttributes', attr);
-        this.selectedNewAttribute = -1;
-        return;
-      }
-      let result = this.localAttributes.findIndex(attr => attr.attribute === option);
-      if (result >= 0) {
-        this.set('localAttributes.' + result + '.closed', false);
-        this.selectedNewAttribute = -1;
-        return;
-      }
-      result = this.globalAttributes.findIndex(attr => attr.attribute === option);
-      if (result >= 0) {
-        this.set('globalAttributes.' + result + '.closed', false);
-        this.selectedNewAttribute = -1;
-        return;
-      }
-      result = this.existingAttributes.findIndex(attr => attr.attribute === option);
-      if (result >= 0) {
-        this.set('existingAttributes.' + result + '.closed', false);
-        this.selectedNewAttribute = -1;
-        return;
-      }
-      result = this.newAttributes.findIndex(attr => attr.attribute === option);
-      if (result >= 0) {
-        this.set('newAttributes.' + result + '.closed', false);
-        this.selectedNewAttribute = -1;
-        return;
-      }
-      const attr = this._computeSingleAttribute(option, '', false /* secondary */);
+    addCustomizeAttributes(){
+      const attr = this._initOpenObject('', '', false /* secondary */, {type: window.hassAttributeUtil.ADD_TYPE});
       this.push('newAttributes', attr);
-      this.selectedNewAttribute = -1;
     }
+    
   }
   customElements.define(HaConfigAdvEntityEditor.is, HaConfigAdvEntityEditor);
 </script>

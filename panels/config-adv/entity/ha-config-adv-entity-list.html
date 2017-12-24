@@ -13,7 +13,6 @@
 <link rel="import" href="../../../src/layouts/flow-layout.html">
 <link rel="import" href="../../../src/layouts/flow-item.html">
 <link rel="import" href="../../../src/components/ha-card.html">
-<link rel="import" href="../../../src/components/ha-icon-picker.html">
 
 
 <dom-module id="ha-config-adv-entity-list">
@@ -55,7 +54,7 @@
 
             <paper-tab data-group=''>Ungrouped</paper-tab>
 
-            <template is='dom-repeat' items='[[groups.groups]]' as='group'>
+            <template is='dom-repeat' items='[[groups.groups]]' as='group' on-tap='switchTab'>
               <paper-tab data-group$='[[group.entity_id]]'>
                 [[group.attributes.friendly_name]]
               </paper-tab>
@@ -65,10 +64,6 @@
         </div>
 
       </app-header>
-
-      <!--<ha-icon-picker>-->
-        <!--<paper-icon-button icon="mdi:plus">aaa</paper-icon-button>-->
-      <!--</ha-icon-picker>-->
 
 
       <iron-pages
@@ -84,6 +79,8 @@
                   <a href='#'>[[entity.attributes.friendly_name]]</a>
                   <div>[[entity.entity_id]]</div>
                   <div>[[entity.state]]</div>
+
+                  <div>[[console.log(entity)]]</div>
                 </div>
               </paper-card>
             </flow-item>
@@ -99,6 +96,8 @@
                     <a href='#'>[[entity.attributes.friendly_name]]</a>
                     <div>[[entity.entity_id]]</div>
                     <div>[[entity.state]]</div>
+
+                    <div>[[console.log(entity)]]</div>
                   </div>
                 </paper-card>
               </flow-item>
@@ -200,12 +199,13 @@
     }
 
     entityTapped(ev) {
-    }
-
-
-    ready() {
-      super.ready();
-
+      var view = ev.model.entity.entity_id || null;
+      var path = '/config-adv/entity-editor';
+      if (view) {
+        path += '/' + view;
+      }
+      history.pushState(null, null, path);
+      this.fire('location-changed');
     }
   }
 
