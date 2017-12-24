@@ -13,6 +13,7 @@
 <link rel="import" href="./script/ha-config-script.html">
 <link rel="import" href="./zwave/ha-config-zwave.html">
 <link rel="import" href="./customize/ha-config-customize.html"> -->
+<link rel="import" href="./group/ha-config-adv-group-list.html">
 <link rel="import" href="./entity/ha-config-adv-entity-list.html">
 <link rel="import" href="./entity/ha-config-adv-entity-editor.html">
 
@@ -41,20 +42,20 @@
       fallback-selection='not-found'
       selected-attribute='visible'
     >
-       <ha-config-adv-core
+      <ha-config-adv-core
         page-name='core'
         hass='[[hass]]'
         is-wide='[[isWide]]'
       ></ha-config-adv-core>
-<!--
-      <ha-config-cloud
-        page-name='cloud'
-        route='[[route]]'
-        hass='[[hass]]'
-        is-wide='[[isWide]]'
-        account='[[account]]'
-      ></ha-config-cloud>
- -->
+      <!--
+            <ha-config-cloud
+              page-name='cloud'
+              route='[[route]]'
+              hass='[[hass]]'
+              is-wide='[[isWide]]'
+              account='[[account]]'
+            ></ha-config-cloud>
+       -->
       <ha-config-adv-dashboard
         page-name='dashboard'
         hass='[[hass]]'
@@ -63,34 +64,20 @@
         narrow='[[narrow]]'
         show-menu='[[showMenu]]'
       ></ha-config-adv-dashboard>
-<!-- 
-      <ha-config-automation
-        page-name='automation'
-        route='[[route]]'
-        hass='[[hass]]'
-        is-wide='[[isWide]]'
-      ></ha-config-automation>
 
-      <ha-config-script
-        page-name='script'
-        route='[[route]]'
+      <ha-config-adv-group-list
+        page-name='group-list'
         hass='[[hass]]'
         is-wide='[[isWide]]'
-      ></ha-config-script>
+        route='[[routeTail]]'
+      ></ha-config-adv-group-list>
 
-      <ha-config-zwave
-        page-name='zwave'
-        hass='[[hass]]'
-        is-wide='[[isWide]]'
-      ></ha-config-zwave>
- -->
-      <ha-config-adv-entity-list>
+      <ha-config-adv-entity-list
         page-name='entity-list'
         hass='[[hass]]'
         is-wide='[[isWide]]'
         route='[[routeTail]]'
       ></ha-config-adv-entity-list>
-
 
       <ha-config-adv-entity-editor
         page-name='entity-editor'
@@ -109,58 +96,62 @@
 </dom-module>
 
 <script>
-class HaPanelConfigAdv extends window.hassMixins.EventsMixin(Polymer.Element) {
-  static get is() { return 'ha-panel-config-adv'; }
-
-  static get properties() {
-    return {
-      hass: Object,
-      narrow: Boolean,
-      showMenu: Boolean,
-      account: {
-        type: Object,
-        value: null,
-      },
-
-      route: {
-        type: Object,
-        observer: '_routeChanged',
-      },
-
-      _routeData: Object,
-      routeTail: Object,
-
-      wide: Boolean,
-      wideSidebar: Boolean,
-
-      isWide: {
-        type: Boolean,
-        computed: 'computeIsWide(showMenu, wideSidebar, wide)'
-      },
-    };
-  }
-
-  ready() {
-    super.ready();
-    if (window.hassUtil.isComponentLoaded(this.hass, 'cloud')) {
-      this.hass.callApi('get', 'cloud/account').then((account) => { this.account = account; });
+  class HaPanelConfigAdv extends window.hassMixins.EventsMixin(Polymer.Element) {
+    static get is() {
+      return 'ha-panel-config-adv';
     }
-    this.addEventListener('ha-account-refreshed', (ev) => {
-      this.account = ev.detail.account;
-    });
-  }
 
-  computeIsWide(showMenu, wideSidebar, wide) {
-    return showMenu ? wideSidebar : wide;
-  }
+    static get properties() {
+      return {
+        hass: Object,
+        narrow: Boolean,
+        showMenu: Boolean,
+        account: {
+          type: Object,
+          value: null,
+        },
 
-  _routeChanged(route) {
-    if (route.path === '' && route.prefix === '/config-adv') {
-      history.replaceState(null, null, '/config-adv/dashboard');
-      this.fire('location-changed');
+        route: {
+          type: Object,
+          observer: '_routeChanged',
+        },
+
+        _routeData: Object,
+        routeTail: Object,
+
+        wide: Boolean,
+        wideSidebar: Boolean,
+
+        isWide: {
+          type: Boolean,
+          computed: 'computeIsWide(showMenu, wideSidebar, wide)'
+        },
+      };
+    }
+
+    ready() {
+      super.ready();
+      if (window.hassUtil.isComponentLoaded(this.hass, 'cloud')) {
+        this.hass.callApi('get', 'cloud/account').then((account) => {
+          this.account = account;
+        });
+      }
+      this.addEventListener('ha-account-refreshed', (ev) => {
+        this.account = ev.detail.account;
+      });
+    }
+
+    computeIsWide(showMenu, wideSidebar, wide) {
+      return showMenu ? wideSidebar : wide;
+    }
+
+    _routeChanged(route) {
+      if (route.path === '' && route.prefix === '/config-adv') {
+        history.replaceState(null, null, '/config-adv/dashboard');
+        this.fire('location-changed');
+      }
     }
   }
-}
 
-customElements.define(HaPanelConfigAdv.is, HaPanelConfigAdv);
+  customElements.define(HaPanelConfigAdv.is, HaPanelConfigAdv);
 </script>

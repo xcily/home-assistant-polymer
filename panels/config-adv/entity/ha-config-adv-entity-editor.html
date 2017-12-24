@@ -65,7 +65,7 @@
       route="{{route}}"
       pattern="/:entity_id"
       data="{{routeData}}"
-      active="{{routeMatch]}}"
+      active="{{routeMatch}}"
     ></app-route>
 
     <app-header-layout has-scrolling-region>
@@ -206,6 +206,11 @@
       ];
     }
 
+    ready() {
+      console.log('ready');
+      super.ready();
+    }
+
     _backTapped() {
       history.back();
     }
@@ -227,7 +232,7 @@
       return this.hass.callApi('GET', 'config_adv/entity/config_adv/' + entity.entity_id)
         .then((data) => {
           this.localConfig = data.local;
-          this.globalConfig = data.global;x
+          this.globalConfig = data.global;
           this.newAttributes = [];
         });
     }
