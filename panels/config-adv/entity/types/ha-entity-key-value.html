@@ -25,6 +25,7 @@
       label='Attribute value'
       value='{{item.value}}'>
     </paper-input>
+    <paper-icon-button icon="mdi:minus" on-tap='delCustomizeAttributes' style="float: right;"></paper-icon-button>
   </template>
 </dom-module>
 
@@ -40,6 +41,10 @@ class HaEntityKeyValue extends Polymer.Element {
       }
     };
   }
+  delCustomizeAttributes(){
+   
+  }
 }
+
 customElements.define(HaEntityKeyValue.is, HaEntityKeyValue);
 </script>

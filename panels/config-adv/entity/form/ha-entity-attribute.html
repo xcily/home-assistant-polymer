@@ -48,7 +48,6 @@
       }
     </style>
     <div id='wrapper' class='form-group'></div>
-    <paper-icon-button class="button" icon="[[getIcon(item.secondary)]]" on-tap="tapButton"></paper-icon-button>
   </template>
 </dom-module>
 
@@ -64,18 +63,6 @@ class HaEntityAttribute extends Polymer.Element {
         observer: 'itemObserver',
       }
     };
-  }
-
-  tapButton() {
-    if (this.item.secondary) {
-      this.item = Object.assign({}, this.item, { secondary: false });
-    } else {
-      this.item = Object.assign({}, this.item, { closed: true });
-    }
-  }
-
-  getIcon(secondary) {
-    return secondary ? 'mdi:pencil' : 'mdi:close';
   }
 
   itemObserver(item) {
@@ -96,6 +83,7 @@ class HaEntityAttribute extends Polymer.Element {
         this.item = Object.assign({}, child.item);
       });
     }
+    console.log(child);
     child.setProperties({ item: this.item });
     if (child.parentNode === null) {
       wrapper.appendChild(child);

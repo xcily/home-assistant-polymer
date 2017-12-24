@@ -199,7 +199,13 @@
     }
 
     entityTapped(ev) {
-
+      var view = ev.model.entity.entity_id || null;
+      var path = '/config-adv/entity-editor';
+      if (view) {
+        path += '/' + view;
+      }
+      history.pushState(null, null, path);
+      this.fire('location-changed');
     }
   }
 
