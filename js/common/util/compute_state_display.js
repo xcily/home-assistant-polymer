@@ -3,19 +3,19 @@ import formatDateTime from './format_date_time.js';
 import formatDate from './format_date.js';
 import formatTime from './format_time.js';
 
-export default function computeStateDisplay(haLocalize, stateObj, language) {
+export default function computeStateDisplay(localize, stateObj, language) {
   if (!stateObj._stateDisplay) {
     const domain = computeStateDomain(stateObj);
     if (domain === 'binary_sensor') {
       // Try device class translation, then default binary sensor translation
       if (stateObj.attributes.device_class) {
         stateObj._stateDisplay =
-          haLocalize(`state.${domain}.${stateObj.attributes.device_class}`, stateObj.state);
+          localize(`state.${domain}.${stateObj.attributes.device_class}.${stateObj.state}`);
       }
       if (!stateObj._stateDisplay) {
-        stateObj._stateDisplay = haLocalize(`state.${domain}.default`, stateObj.state);
+        stateObj._stateDisplay = localize(`state.${domain}.default.${stateObj.state}`);
       }
-    } else if (stateObj.attributes.unit_of_measurement) {
+    } else if (stateObj.attributes.unit_of_measurement && !['unknown', 'unavailable'].includes(stateObj.state)) {
       stateObj._stateDisplay = stateObj.state + ' ' + stateObj.attributes.unit_of_measurement;
     } else if (domain === 'input_datetime') {
       let date;
@@ -43,16 +43,16 @@ export default function computeStateDisplay(haLocalize, stateObj, language) {
       }
     } else if (domain === 'zwave') {
       if (['initializing', 'dead'].includes(stateObj.state)) {
-        stateObj._stateDisplay = haLocalize('state.zwave.query_stage', stateObj.state, 'query_stage', stateObj.attributes.query_stage);
+        stateObj._stateDisplay = localize(`state.zwave.query_stage.${stateObj.state}`, 'query_stage', stateObj.attributes.query_stage);
       } else {
-        stateObj._stateDisplay = haLocalize('state.zwave.default', stateObj.state);
+        stateObj._stateDisplay = localize(`state.zwave.default.${stateObj.state}`);
       }
     } else {
-      stateObj._stateDisplay = haLocalize(`state.${domain}`, stateObj.state);
+      stateObj._stateDisplay = localize(`state.${domain}.${stateObj.state}`);
     }
     // Fall back to default or raw state if nothing else matches.
     stateObj._stateDisplay = stateObj._stateDisplay
-      || haLocalize('state.default', stateObj.state) || stateObj.state;
+      || localize(`state.default.${stateObj.state}`) || stateObj.state;
   }
 
   return stateObj._stateDisplay;
