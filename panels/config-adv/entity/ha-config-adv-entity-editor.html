@@ -11,12 +11,13 @@
 <link rel="import" href="../../../src/util/hass-util.html">
 <link rel="import" href="../../../src/resources/ha-style.html">
 <link rel="import" href="../../../src/util/hass-attributes-util.html">
+<link rel="import" href="../ha-config-adv-form-style.html">
 
 <link rel="import" href="./form/ha-form-entity-attributes.html">
 
 <dom-module id="ha-config-adv-entity-editor">
   <template>
-    <style include="iron-flex ha-style ha-form-style">
+    <style include="iron-flex ha-style ha-config-adv-form-style">
       .warning {
         color: red;
       }
@@ -72,7 +73,7 @@
     </style>
     <app-route
       route="{{route}}"
-      pattern="/:entity_id"
+      pattern="/entity-editor/:entity_id"
       data="{{routeData}}"
       active="{{routeMatch}}"
     ></app-route>
@@ -187,7 +188,7 @@
         isWide: Boolean,
         entity: {
           type: Object,
-          computed: 'computeEntity(hass, routeData)',
+          computed: 'computeEntity(hass, routeData, routeMatch)',
         },
         basisAttributes: {
           type: Array,
@@ -269,9 +270,9 @@
       return routeData.entity_id;
     }
 
-    computeEntity(hass, routeData) {
+    computeEntity(hass, routeData, routeMatch) {
       var entity;
-      if (routeData) {
+      if (routeMatch && routeData) {
         entity = hass.states[routeData.entity_id];
       }
       return entity;
