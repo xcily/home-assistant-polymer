@@ -2,6 +2,7 @@
 <link rel='import' href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="../../../../src/util/hass-attributes-util.html">
+<link rel="import" href="../../../../src/util/hass-attributes-util.html">
 
 <link rel="import" href="../types/ha-entity-array.html">
 <link rel="import" href="../types/ha-entity-boolean.html">
@@ -45,11 +46,15 @@
         margin-top: -20px;
         top: 50%;
         right: 0;
+        color: #757575;
       }
     </style>
     <div id='wrapper' class='form-group'></div>
     <template is='dom-if' if='[[itemEntityType]]'>
       <paper-icon-button icon="mdi:minus" on-tap='tapButton' class="button" ></paper-icon-button>
+    </template>
+    <template is='dom-if' if='[[isWide]]'>
+      <paper-icon-button icon="mdi:alert-circle-outline" on-tap='' class="button"  ></paper-icon-button>
     </template>
   </template>
 </dom-module>
@@ -65,10 +70,15 @@ class HaEntityAttribute extends Polymer.Element {
         notify: true,
         observer: 'itemObserver',
       },
-      itemEntityType: {
+      isWide: Boolean,
+      hasReminder: {
         type: Boolean,
-        value: false,
-      }
+        value: true,
+      },
+      reminders: {
+        type:String,
+        computed: 'computeReminders(reminderInfo,item)',
+      },
     };
   }
   tapButton() {
@@ -100,6 +110,49 @@ class HaEntityAttribute extends Polymer.Element {
     if (child.parentNode === null) {
       wrapper.appendChild(child);
     }
+  }
+
+  computeReminders(reminderInfo,item){
+    if(!item) return '';
+    var info = '';
+    switch(item.attribute)
+    {
+      case 'entity_picture':
+        info = 'the cover of the entity.';  
+        break;
+      case 'friendly_name':
+        info = 'Name of the entity.';  
+        break;
+      case 'icon':
+        info = 'Name of the entity.';
+        break;
+      case 'emulated_hue':
+        info = 'the entity of emulated_hue';
+        break;
+      case 'emulated_hue_name':
+        info = 'name of  the entity in emulated_hue.';
+        break; 
+      case 'emulated_hue_hidden':
+        info = 'Set to true to hide the entity from emulated_hue.';
+        break;
+      case 'homebridge_hidden':
+        info = 'Set to true to hide the entity from HomeBridge.';
+        break;
+      case 'homebridge_name':
+        info = 'Name of the entity in HomeBridge.';
+        break;
+      case 'device_class':
+        info = 'the entity device_class';
+        break;
+      case 'hidden':
+        info = 'Set to true to hide the entity.';
+        break;
+      default:
+        info = '';
+    }
+    console.log(this.isWide);
+    return info;
+    
   }
 }
 customElements.define(HaEntityAttribute.is, HaEntityAttribute);

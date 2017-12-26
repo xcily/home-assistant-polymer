@@ -105,7 +105,7 @@
           <paper-card>
             <div class='card-actions'>
               <div class='form-content'>
-                  <ha-form-entity-attributes attributes="{{basisAttributes}}"></ha-form-entity-attributes>         
+                  <ha-form-entity-attributes attributes="{{basisAttributes}}" isWide=[[isWide]]></ha-form-entity-attributes>         
               </div>
             </div>
           </paper-card>
@@ -115,7 +115,7 @@
            <paper-card>
             <div class='card-actions'>
               <div class='form-content'>              
-                  <ha-form-entity-attributes attributes="{{localAttributes}}"></ha-form-entity-attributes>
+                  <ha-form-entity-attributes attributes="{{localAttributes}}" isWide=[[isWide]]></ha-form-entity-attributes>
               </div>
             </div>
           </paper-card>
@@ -125,7 +125,7 @@
           <paper-card>
             <div class='card-actions'>
               <div class='form-content'>              
-                  <ha-form-entity-attributes attributes="{{homebridgeAttributes}}"></ha-form-entity-attributes>
+                  <ha-form-entity-attributes attributes="{{homebridgeAttributes}}" isWide=[[isWide]]></ha-form-entity-attributes>
               </div>
             </div>
           </paper-card>
@@ -135,7 +135,7 @@
            <paper-card>
             <div class='card-actions'>
               <div class='form-content'>
-                    <ha-form-entity-attributes attributes="{{otherAttributes}}"></ha-form-entity-attributes>
+                    <ha-form-entity-attributes attributes="{{otherAttributes}}" isWide=[[isWide]]></ha-form-entity-attributes>
               </div>
             </div>
           </paper-card>
@@ -145,10 +145,10 @@
           <div class='card-content'>
             <div class='form-container'>
               <template is='dom-if' if='[[hasNewAttributes]]'>
-                <ha-form-entity-attributes attributes="{{newAttributes}}"></ha-form-entity-attributes>
+                <ha-form-entity-attributes attributes="{{newAttributes}}" isWide=[[isWide]]></ha-form-entity-attributes>
               </template>          
               <div class='form-group'>
-                 <paper-icon-button icon="mdi:plus" on-tap='addCustomizeAttributes' ></paper-icon-button>
+                 <paper-icon-button icon="mdi:plus" on-tap='addCustomizeAttributes'></paper-icon-button>
               </div>
             </div>
           </div>
@@ -215,11 +215,7 @@
 
         hasNewAttributes: Boolean,
         newAttributesOptions: Array,
-        selectedNewAttribute: {
-          type: Number,
-          value: -1,
-          observer: 'selectedNewAttributeObserver',
-        },
+    
 
         basisConfig: {
           type: Object,

@@ -14,6 +14,7 @@
       <ha-Entity-attribute
         item="{{item}}"
         hidden$="[[item.closed]]">
+        isWide="[[isWide]]""
       </ha-Entity-attribute>
     </template>
   </template>
@@ -25,6 +26,7 @@ class HaFormEntityAttributes extends Polymer.MutableData(Polymer.Element) {
 
   static get properties() {
     return {
+      isWide:Boolean,
       attributes: {
         type: Array,
         notify: true,
