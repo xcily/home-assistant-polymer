@@ -79,8 +79,6 @@
                   <a href='#'>[[entity.attributes.friendly_name]]</a>
                   <div>[[entity.entity_id]]</div>
                   <div>[[entity.state]]</div>
-
-                  <div>[[console.log(entity)]]</div>
                 </div>
               </paper-card>
             </flow-item>
@@ -89,19 +87,19 @@
         <template is='dom-repeat' items='[[groups.groups]]' as='group'>
           <flow-layout data-view$='[[group.entity_id]]'>
             <template is='dom-repeat' items='[[getEntitiesByGroup(hass, group)]]' as='entity'>
-              <!-- <template is='dom-if' if='[[!computeIsGroup(entity.entity_id)]]'> -->
-              <flow-item on-tap='entityTapped'>
-                <paper-card>
-                  <div class="card-content">
-                    <a href='#'>[[entity.attributes.friendly_name]]</a>
-                    <div>[[entity.entity_id]]</div>
-                    <div>[[entity.state]]</div>
+              <template is='dom-if' if='[[!computeIsGroup(entity)]]'>
+                <flow-item on-tap='entityTapped'>
+                  <paper-card>
+                    <div class="card-content">
+                      <a href='#'>[[entity.attributes.friendly_name]]</a>
+                      <div>[[entity.entity_id]]</div>
+                      <div>[[entity.state]]</div>
 
-                    <div>[[console.log(entity)]]</div>
-                  </div>
-                </paper-card>
-              </flow-item>
-              <!-- </template> -->
+                      <div>[[console.log(entity)]]</div>
+                    </div>
+                  </paper-card>
+                </flow-item>
+              </template>
             </template>
           </flow-layout>
         </template>
@@ -181,7 +179,9 @@
     }
 
     computeIsGroup(entity) {
-      return window.HAWS.extractDomain(entity.entity_id) == 'group';
+      if(entity)
+        return window.HAWS.extractDomain(entity.entity_id) == 'group';
+      return false;
     }
 
     handleViewSelected(ev) {

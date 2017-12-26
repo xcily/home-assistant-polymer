@@ -1,4 +1,41 @@
 {
+  "domain": {
+    "alarm_control_panel": "Alarm control panel",
+    "automation": "Automation",
+    "binary_sensor": "Binary sensor",
+    "calendar": "Calendar",
+    "camera": "Camera",
+    "climate": "Climate",
+    "configurator": "Configurator",
+    "conversation": "Conversation",
+    "cover": "Cover",
+    "device_tracker": "Device tracker",
+    "fan": "Fan",
+    "history_graph": "History graph",
+    "group": "Group",
+    "image_processing": "Image processing",
+    "input_boolean": "Input boolean",
+    "input_datetime": "Input datetime",
+    "input_select": "Input select",
+    "input_number": "Input number",
+    "input_text": "Input text",
+    "light": "Light",
+    "lock": "Lock",
+    "mailbox": "Mailbox",
+    "media_player": "Media player",
+    "notify": "Notify",
+    "plant": "Plant",
+    "proximity": "Proximity",
+    "remote": "Remote",
+    "scene": "Scene",
+    "script": "Script",
+    "sensor": "Sensor",
+    "sun": "Sun",
+    "switch": "Switch",
+    "updater": "Updater",
+    "weblink": "Weblink",
+    "zwave": "Z-Wave"
+  },
   "panel": {
     "config": "Configuration",
     "config_adv": "AdvConfiguration",
@@ -6,9 +43,14 @@
     "map": "Map",
     "logbook": "Logbook",
     "history": "History",
-    "log_out": "Log out",
     "mailbox": "Mailbox",
-    "shopping_list": "Shopping list"
+    "shopping_list": "Shopping list",
+    "dev-services": "Services",
+    "dev-states": "States",
+    "dev-events": "Events",
+    "dev-templates": "Templates",
+    "dev-mqtt": "MQTT",
+    "dev-info": "Info"
   },
   "state": {
     "default": {
@@ -42,6 +84,10 @@
         "off": "Normal",
         "on": "Low"
       },
+      "connectivity": {
+        "off": "Disconnected",
+        "on": "Connected"
+      },
       "gas": {
         "off": "Clear",
         "on": "Detected"
@@ -65,6 +111,10 @@
       "presence": {
         "off": "[%key:state::device_tracker::not_home%]",
         "on": "[%key:state::device_tracker::home%]"
+      },
+      "problem": {
+        "off": "OK",
+        "on": "Problem"
       },
       "safety": {
         "off": "Safe",
@@ -139,8 +189,8 @@
       "stopped": "[%key:state::cover::stopped%]",
       "locked": "[%key:state::lock::locked%]",
       "unlocked": "[%key:state::lock::unlocked%]",
-      "ok": "[%key:state::plant::ok%]",
-      "problem": "[%key:state::plant::problem%]"
+      "ok": "[%key:state::binary_sensor::problem::off%]",
+      "problem": "[%key:state::binary_sensor::problem::on%]"
     },
     "input_boolean": {
       "off": "[%key:state::default::off%]",
@@ -163,8 +213,8 @@
       "standby": "Standby"
     },
     "plant": {
-      "ok": "OK",
-      "problem": "Problem"
+      "ok": "[%key:state::binary_sensor::problem::off%]",
+      "problem": "[%key:state::binary_sensor::problem::on%]"
     },
     "remote": {
       "off": "[%key:state::default::off%]",
@@ -225,7 +275,38 @@
     }
   },
   "ui": {
+    "common": {
+      "loading": "Loading",
+      "cancel": "Cancel"
+    },
+    "duration": {
+      "second": "{count} {count, plural,\n  one {second}\n  other {seconds}\n}",
+      "day": "{count} {count, plural,\n  one {day}\n  other {days}\n}",
+      "week": "{count} {count, plural,\n  one {week}\n  other {weeks}\n}"
+    },
+    "login-form": {
+      "password": "Password",
+      "remember": "Remember",
+      "log_in": "Log in"
+    },
+    "sidebar": {
+      "developer_tools": "Developer tools",
+      "log_out": "Log out"
+    },
     "panel": {
+      "history": {
+        "showing_entries": "Showing entries for",
+        "period": "Period"
+      },
+      "logbook": {
+        "showing_entries": "[%key:ui::panel::history::showing_entries%]"
+      },
+      "mailbox": {
+        "empty": "You do not have any messages",
+        "playback_title": "Message playback",
+        "delete_prompt": "Delete this message?",
+        "delete_button": "Delete"
+      },
       "shopping-list": {
         "clear_completed": "Clear completed",
         "add_item": "Add item",
