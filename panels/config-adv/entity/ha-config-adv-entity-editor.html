@@ -28,25 +28,6 @@
         margin: 0 auto;
       }
 
-      .form-group {
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-        padding: 8px 16px;
-      }
-
-      .form-group label {
-        @apply(--layout-flex-2);
-      }
-
-      .form-group .form-control {
-        @apply(--layout-flex);
-      }
-
-      .form-group.vertical {
-        @apply(--layout-vertical);
-        @apply(--layout-start);
-      }
-
       paper-card {
         display: block;
       }
@@ -91,67 +72,85 @@
       <div class$='[[computeClasses(isWide)]]'>
         <template is='dom-if' if='[[computeShowWarning(localConfig, homebridgeConfig)]]'>
           <paper-card>
-            <div class='card-actions'>
-                <div class='form-content'>              
+            <div class='card-content'>
                       <div class="warning">
                         It seems that your configuration.yaml doesn't properly include customize.yaml<br>
                         Changes made here won't affect your configuration.
                       </div>        
-                </div>
               </div>
           </paper-card>
         </template>
         <template is='dom-if' if='[[hasBasisAttributes]]'>
           <div><h4 class="attributes-text">BASE Attributes: </h4></div>
           <paper-card>
-            <div class='card-actions'>
-              <div class='form-content'>
-                  <ha-form-entity-attributes attributes="{{basisAttributes}}" isWide=[[isWide]]></ha-form-entity-attributes>         
-              </div>
+            <div class='card-content'>
+            
+                  <ha-form-entity-attributes attributes="{{basisAttributes}}" is-wide=[[isWide]]></ha-form-entity-attributes>         
+              
             </div>
           </paper-card>
         </template>
         <template is='dom-if' if='[[hasLocalAttributes]]'>
           <div><h4 class="attributes-text">Entity Attributes: </h4></div>
            <paper-card>
-            <div class='card-actions'>
-              <div class='form-content'>              
-                  <ha-form-entity-attributes attributes="{{localAttributes}}" isWide=[[isWide]]></ha-form-entity-attributes>
-              </div>
+            <div class='card-content'>
+               
+                  <ha-form-entity-attributes attributes="{{localAttributes}}" is-wide=[[isWide]]></ha-form-entity-attributes>
+      
             </div>
           </paper-card>
         </template>
         <template is='dom-if' if='[[hasHomebridgeAttributes]]'>
           <div><h4 class="attributes-text">HomeBridge Attributes: </h4></div>
           <paper-card>
-            <div class='card-actions'>
-              <div class='form-content'>              
-                  <ha-form-entity-attributes attributes="{{homebridgeAttributes}}" isWide=[[isWide]]></ha-form-entity-attributes>
-              </div>
+            <div class='card-content'>
+                       
+                  <ha-form-entity-attributes attributes="{{homebridgeAttributes}}" is-wide=[[isWide]]></ha-form-entity-attributes>
+             
             </div>
           </paper-card>
         </template>
         <template is='dom-if' if='[[hasOtherAttributes]]'>
-           <div><h4 class="attributes-text">Other Attributes: </h4></div>
+          <div><h4 class="attributes-text">Other Attributes: </h4></div>
+          <paper-card>
+            <div class='card-content'>
+                       
+                  <ha-form-entity-attributes attributes="{{otherAttributes}}" is-wide=[[isWide]]></ha-form-entity-attributes>
+             
+            </div>
+          </paper-card>
+        </template>
+        <template is='dom-if' if='[[hasHasskaAttributes]]'>
+          <div><h4 class="attributes-text">Hasska Attributes: </h4></div>
+          <paper-card>
+            <div class='card-content'>
+                       
+                  <ha-form-entity-attributes attributes="{{hasskaAttributes}}" is-wide=[[isWide]]></ha-form-entity-attributes>
+             
+            </div>
+          </paper-card>
+        </template>
+        <template is='dom-if' if='[[hasEmulatedAttributes]]'>
+           <div><h4 class="attributes-text">Emulated Attributes: </h4></div>
            <paper-card>
-            <div class='card-actions'>
-              <div class='form-content'>
-                    <ha-form-entity-attributes attributes="{{otherAttributes}}" isWide=[[isWide]]></ha-form-entity-attributes>
-              </div>
+            <div class='card-content'>
+             
+                    <ha-form-entity-attributes attributes="{{emulatedAttributes}}" is-wide=[[isWide]]></ha-form-entity-attributes>
+            
             </div>
           </paper-card>
         </template>
         <div><h4 class="attributes-text">Customize Attributes: </h4></div>
          <paper-card>
           <div class='card-content'>
-            <div class='form-container'>
+            
               <template is='dom-if' if='[[hasNewAttributes]]'>
-                <ha-form-entity-attributes attributes="{{newAttributes}}" isWide=[[isWide]]></ha-form-entity-attributes>
+                <ha-form-entity-attributes attributes="{{newAttributes}}" is-wide=[[isWide]]></ha-form-entity-attributes>
               </template>          
               <div class='form-group'>
                  <paper-icon-button icon="mdi:plus" on-tap='addCustomizeAttributes'></paper-icon-button>
               </div>
-            </div>
+      
           </div>
         </paper-card>
         <paper-card>
@@ -198,25 +197,37 @@
 
         localAttributes: {
           type: Array,
-          computed: 'computeLocalAttributes(localConfig, basisConfig, entity)',
+          computed: 'computeLocalAttributes(basisConfig, homebridgeConfig, otherConfig, emulatedConfig, hasskaConfig, entity)',
         },
         hasLocalAttributes: Boolean,
 
         homebridgeAttributes: {
           type: Array,
-          computed: 'computeHomebridgeAttributes(localConfig, homebridgeConfig, basisConfig, entity)',
+          computed: 'computeHomebridgeAttributes(homebridgeConfig, entity)',
         },
         hasHomebridgeAttributes: Boolean,
 
+        emulatedAttributes: {
+          type: Array,
+          computed: 'computeEmulatedAttributes(emulatedConfig, entity)',
+        },
+        hasEmulatedAttributes: Boolean,
+
+        hasskaAttributes: {
+          type: Array,
+          computed: 'computeHasskaAttributes(hasskaConfig, entity)',
+        },
+        hasHasskaAttributes: Boolean,
+
         otherAttributes: {
           type: Array,
-          computed: 'computeOtherAttributes(localConfig, homebridgeConfig, basisConfig, entity)',
+          computed: 'computeOtherAttributes(otherConfig, entity)',
         },
         hasOtherAttributes: Boolean,
 
         hasNewAttributes: Boolean,
         newAttributesOptions: Array,
-    
+        
 
         basisConfig: {
           type: Object,
@@ -224,13 +235,6 @@
             friendly_name: '',
             hidden: '',
             icon: '',
-          }
-        },
-        localConfig: {
-          type: Object,
-          value: {
-            device_class: '',
-            emulated_hue: '',
           },
         },
         homebridgeConfig: {
@@ -240,17 +244,45 @@
             homebridge_hidden: '',
           },
         },
+        hasskaConfig: {
+          type: Object,
+          value: {
+            haaska_hidden: '',
+            haaska_name: '',
+          },
+        },
+        emulatedConfig: {
+          type: Object,
+          value: {
+            emulated_hue: '',
+            emulated_hue_name: '',
+          },
+        },
+        otherConfig: {
+          type: Object,
+          value: {
+            entity_picture: '',
+            supported_features: '',
+            custom_ui_state_card: '',
+            device_class: '',
+            assumed_state: '',
+            initial_state: '',
+            unit_of_measurement: '',
+          },
+        },
         newAttributes: {
           type: Object,
           value: [],
         },
       };
     }
+       
 
+    
 
     static get observers() {
       return [
-        'attributesObserver(localAttributes.*, homebridgeAttributes.*, basisAttributes.*, otherAttributes.*, newAttributes.*)',
+        'attributesObserver(localAttributes.*, homebridgeAttributes.*, basisAttributes.*, otherAttributes.*, newAttributes.*, emulatedAttributes.*, hasskaAttributes)',
       ];
     }
 
@@ -273,7 +305,7 @@
       }
       return entity;
     }
-
+ 
     saveEntity() {
       const data = {};
       const attrs = this.localAttributes
@@ -286,7 +318,13 @@
       });
 
       const objectId = this.entity.entity_id;
-      return this.hass.callApi('POST', 'config/entity/config_adv/' + objectId, data);
+      var result = this.hass.callApi('POST', 'config_adv/entity/config_adv/' + objectId, data);
+      if(result){
+          console.log(result);
+      }else{
+          console.log(result);
+
+      }  
     }
 
     computeIcon(stateObj) {
@@ -314,44 +352,41 @@
       return keys.map(key => this._computeSingleAttribute(key, config[key], secondary));
     }
 
-    computeLocalAttributes(localConfig, basisConfig, entity) {
-      if (!localConfig || !basisConfig || !entity) return [];
-      const basisKeys = Object.keys(basisConfig);
-      const localKeys = Object.keys(localConfig).filter(key => !basisKeys.includes(key));
-      const result = this._computeAttributes(entity.attributes, localKeys, false);
-      return result;
-    }
-
-
     computeBasisAttributes(basisConfig, entity) {
       if (!basisConfig || !entity) return [];
       const basisKeys = Object.keys(basisConfig);
       return this._computeAttributes(entity.attributes, basisKeys, false);
     }
 
-    computeHomebridgeAttributes(localConfig, homebridgeConfig, basisConfig, entity) {
-      if (!localConfig || !homebridgeConfig || !basisConfig || !entity) return [];
-      const localKeys = Object.keys(localConfig);
-      const basisKeys = Object.keys(basisConfig);
-      const homebridgeKeys = Object.keys(homebridgeConfig)
-        .filter(key => !localKeys.includes(key) && !basisKeys.includes(key));
-      return this._computeAttributes(entity.attributes, homebridgeKeys, false);
+    computeHasskaAttributes(hasskaConfig, entity) {
+      if (!hasskaConfig || !entity) return [];
+      return this._computeAttributes(entity.attributes, Object.keys(hasskaConfig), false);
+    }
+    computeEmulatedAttributes(emulatedConfig, entity) {
+      if (!emulatedConfig || !entity) return [];
+      return this._computeAttributes(entity.attributes, Object.keys(emulatedConfig), false);
+    }
+    computeHomebridgeAttributes(homebridgeConfig, entity) {
+      if (!homebridgeConfig  || !entity) return [];
+      return this._computeAttributes(entity.attributes, Object.keys(homebridgeConfig), false);
     }
 
-    computeOtherAttributes(localConfig, homebridgeConfig, basisConfig, entity) {
-      if (!localConfig || !homebridgeConfig || !entity || !basisConfig) return [];
-      const localKeys = Object.keys(localConfig);
+    computeLocalAttributes(basisConfig, homebridgeConfig, otherConfig, emulatedConfig, hasskaConfig, entity) {
+      if (!basisConfig || !homebridgeConfig || !otherConfig || !emulatedConfig || !hasskaConfig || !entity) return [];
       const basisKeys = Object.keys(basisConfig);
+      const otherKeys = Object.keys(otherConfig);
+      const emulatedKeys = Object.keys(emulatedConfig);
+      const hasskaKeys = Object.keys(hasskaConfig);
       const homebridgeKeys = Object.keys(homebridgeConfig);
-      const otherKeys =
-        Object.keys(window.hassAttributeUtil.LOGIC_STATE_ATTRIBUTES)
-          .filter((key) => {
-            const conf = window.hassAttributeUtil.LOGIC_STATE_ATTRIBUTES[key];
-            return conf && (!conf.domains || !this.entity ||
-              conf.domains.includes(window.hassUtil.computeDomain(this.entity)));
-          }) 
-          .filter((key) => !localKeys.includes(key) && !basisKeys.includes(key) && !homebridgeKeys.includes(key));
-      return this._computeAttributes(entity.attributes, otherKeys, false);
+      const localKeys = Object.keys(entity.attributes)
+        .filter(key => !basisKeys.includes(key) && !homebridgeKeys.includes(key) && !otherKeys.includes(key) && !hasskaKeys.includes(key) && !emulatedKeys.includes(key));
+      const result = this._computeAttributes(entity.attributes, localKeys, false);
+      return result;
+    }
+
+    computeOtherAttributes(otherConfig, entity) {
+      if (!otherConfig  || !entity) return [];
+      return this._computeAttributes(entity.attributes, Object.keys(otherConfig), false);
     }
 
     computeShowWarning(localConfig, homebridgeConfig) {
@@ -367,6 +402,10 @@
         this.localAttributes && this.localAttributes.some(attr => !attr.closed);
       this.hasHomebridgeAttributes =
         this.homebridgeAttributes && this.homebridgeAttributes.some(attr => !attr.closed);
+      this.hasHasskaAttributes =
+        this.hasskaAttributes && this.hasskaAttributes.some(attr => !attr.closed);
+      this.hasEmulatedAttributes =
+        this.emulatedAttributes && this.emulatedAttributes.some(attr => !attr.closed);
       this.hasOtherAttributes =
         this.otherAttributes && this.otherAttributes.some(attr => !attr.closed);
       this.hasNewAttributes =

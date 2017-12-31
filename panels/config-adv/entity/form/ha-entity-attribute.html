@@ -1,9 +1,10 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
 <link rel='import' href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
-
+<link rel='import' href="../../../../bower_components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../../../../src/util/hass-attributes-util.html">
-<link rel="import" href="../../../../src/util/hass-attributes-util.html">
 
+
+<link rel="import" href="../../ha-config-adv-form-style.html">
 <link rel="import" href="../types/ha-entity-array.html">
 <link rel="import" href="../types/ha-entity-boolean.html">
 <link rel="import" href="../types/ha-entity-icon.html">
@@ -13,49 +14,52 @@
 <dom-module id="ha-entity-attribute">
   <template>
     <style>
-      .form-group {
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-        padding: 8px 16px;
-      }
-
-      .form-group label {
-        @apply(--layout-flex-2);
-      }
-
-      .form-group .form-control {
-        @apply(--layout-flex);
-      }
-
-      .form-group.vertical {
-        @apply(--layout-vertical);
-        @apply(--layout-start);
-      }
-
-      paper-dropdown-menu.form-control {
-        margin: -9px 0;
-      }
       :host {
         display: block;
         position: relative;
-        padding-right: 40px;
+        padding-right: 20px;
       }
-
+     .flex-horizontal {
+      @apply --layout-horizontal;
+      @apply --layout-center;
+      height: 80px;     
+      }
+      .flexchild {
+        @apply --layout-flex;
+      }
+      .tips {
+        background-color: #F0F0F0;
+        color: #999999;
+        padding: 10px 10px 10px 10px;
+        align-content: center;
+        margin: 20px 20px 20px 20px;
+      }
       .button {
         position: absolute;
-        margin-top: -20px;
+        color: #999999;
+        margin: -20px -10px 20px 20px;
         top: 50%;
         right: 0;
-        color: #757575;
       }
     </style>
-    <div id='wrapper' class='form-group'></div>
-    <template is='dom-if' if='[[itemEntityType]]'>
-      <paper-icon-button icon="mdi:minus" on-tap='tapButton' class="button" ></paper-icon-button>
-    </template>
-    <template is='dom-if' if='[[isWide]]'>
-      <paper-icon-button icon="mdi:alert-circle-outline" on-tap='' class="button"  ></paper-icon-button>
-    </template>
+    <div  class="container flex-horizontal">
+      <div id='wrapper' class='flexchild'></div>
+      <div>
+          <template is='dom-if' if='[[itemEntityType]]'>
+            <paper-icon-button icon="mdi:minus" on-tap='tapButton' class="button" ></paper-icon-button>
+          </template>
+          <template is='dom-if' if='[[tips]]'>
+            <template is='dom-if' if='[[!isWide]]'>
+              <paper-icon-button icon="mdi:alert-circle-outline" id='btn' class="button"  ></paper-icon-button>
+              <paper-tooltip for="btn" offset="0">[[tips]]</paper-tooltip>
+            </template>
+            <template is='dom-if' if='[[isWide]]'>
+              <div class="tips">[[tips]]</div>
+            </template>
+          </template>
+      </div>
+    </div>
+    
   </template>
 </dom-module>
 
@@ -70,21 +74,20 @@ class HaEntityAttribute extends Polymer.Element {
         notify: true,
         observer: 'itemObserver',
       },
-      isWide: Boolean,
-      hasReminder: {
+      itemEntityType: {
         type: Boolean,
-        value: true,
+        value: false,
       },
-      reminders: {
+      isWide: Boolean,
+      tips: {
         type:String,
-        computed: 'computeReminders(reminderInfo,item)',
+        computed: 'computeTips(item)',
       },
     };
   }
   tapButton() {
       this.item = Object.assign({}, this.item, { closed: true });
   }
-
   itemObserver(item) {
     const wrapper = this.$.wrapper;
     const tag = window.hassAttributeUtil.TYPE_TO_ENTITY_TAG[item.type].toUpperCase();
@@ -112,47 +115,49 @@ class HaEntityAttribute extends Polymer.Element {
     }
   }
 
-  computeReminders(reminderInfo,item){
+  computeTips(item){
     if(!item) return '';
-    var info = '';
+    var tipsInfo = '';
     switch(item.attribute)
     {
       case 'entity_picture':
-        info = 'the cover of the entity.';  
+        tipsInfo = 'the cover of the entity.';  
         break;
       case 'friendly_name':
-        info = 'Name of the entity.';  
+        tipsInfo = 'Name of the entity.';  
         break;
       case 'icon':
-        info = 'Name of the entity.';
+        tipsInfo = 'icon of the entity.';
         break;
       case 'emulated_hue':
-        info = 'the entity of emulated_hue';
+        tipsInfo = 'the entity of emulated_hue';
         break;
       case 'emulated_hue_name':
-        info = 'name of  the entity in emulated_hue.';
+        tipsInfo = 'name of  the entity in emulated_hue.';
         break; 
       case 'emulated_hue_hidden':
-        info = 'Set to true to hide the entity from emulated_hue.';
+        tipsInfo = 'Set to true to hide the entity from emulated_hue.';
         break;
       case 'homebridge_hidden':
-        info = 'Set to true to hide the entity from HomeBridge.';
+        tipsInfo = 'Set to true to hide the entity from HomeBridge.';
         break;
       case 'homebridge_name':
-        info = 'Name of the entity in HomeBridge.';
+        tipsInfo = 'Name of the entity in HomeBridge.';
         break;
       case 'device_class':
-        info = 'the entity device_class';
+        tipsInfo = 'the entity device_class';
         break;
       case 'hidden':
-        info = 'Set to true to hide the entity.';
+        tipsInfo = 'Set to true to hide the entity.';
         break;
       default:
-        info = '';
+        tipsInfo = '';
     }
-    console.log(this.isWide);
-    return info;
+    return tipsInfo;
     
+  }
+  test(){
+    console.log(this.isWide);
   }
 }
 customElements.define(HaEntityAttribute.is, HaEntityAttribute);
