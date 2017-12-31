@@ -13,8 +13,8 @@
     <template is='dom-repeat' items='{{attributes}}' mutable-data>
       <ha-Entity-attribute
         item="{{item}}"
-        hidden$="[[item.closed]]">
-        isWide="[[isWide]]""
+        hidden$="[[item.closed]]"
+        is-wide="[[isWide]]">
       </ha-Entity-attribute>
     </template>
   </template>
@@ -33,6 +33,9 @@ class HaFormEntityAttributes extends Polymer.MutableData(Polymer.Element) {
       },
     };
   }
+  test(){
+      console.log(this.isWide);
+    }
 }
 customElements.define(HaFormEntityAttributes.is, HaFormEntityAttributes);
 </script>
