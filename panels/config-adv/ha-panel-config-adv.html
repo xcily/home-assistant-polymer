@@ -15,6 +15,7 @@
 <link rel="import" href="./customize/ha-config-customize.html"> -->
 <link rel="import" href="./entity/ha-config-adv-entity-list.html">
 <link rel="import" href="./entity/ha-config-adv-entity-editor.html">
+<link rel="import" href="./group/ha-config-adv-group-list.html">
 
 <dom-module id="ha-panel-config-adv">
   <template>
@@ -98,6 +99,13 @@
         is-wide='[[isWide]]'
         route='[[route]]'
       ></ha-config-adv-entity-editor>
+
+      <ha-config-adv-group-list
+        page-name='group-list'
+        hass='[[hass]]'
+        is-wide='[[isWide]]'
+        route='[[route]]'
+      ></ha-config-adv-group-list>
 
       <hass-error-screen
         page-name='not-found'

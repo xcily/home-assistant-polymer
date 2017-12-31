@@ -7,17 +7,79 @@
 <link rel="import" href="../../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../../bower_components/paper-tabs/paper-tabs.html">
 <link rel='import' href='../../../bower_components/app-route/app-route.html'>
-
+<link rel='import' href='../../../bower_components/iron-list/iron-list.html'>
 
 <dom-module id="ha-config-adv-group-list">
   <template>
 
     <style include="ha-style">
     </style>
+    <style>
+        .primary {
+          font-size: 16px;
+        }
+        .secondary {
+          font-size: 14px;
+          color: gray;
+        }
+        iron-list {
+          @apply --layout-flex;
+        }
+
+        #entityList, #groupList {
+          @apply --layout-flex;
+          padding: 0px;
+        }
+        .item {
+          @apply --layout-horizontal;
+          cursor: pointer;
+          padding: 16px 22px;
+          border-bottom: 1px solid #DDD;
+        }
+
+        .item:focus,
+        .item.selected:focus {
+          outline: 0;
+          background-color: #ddd;
+        }
+
+        .pad {
+          @apply --layout-flex;
+          @apply --layout-vertical;
+          padding: 0 16px;
+        }
+        .icon{
+          height: 40px;
+          width: 40px;
+          color: var(--paper-item-icon-color);
+        }
+        paper-card{
+          margin: 20px;
+          display: block;
+          /*padding: 20px;*/
+        }
+        h2{
+          font-family: var(--paper-font-headline_-_font-family);
+          -webkit-font-smoothing: var(--paper-font-headline_-_-webkit-font-smoothing);
+          font-size: var(--paper-font-headline_-_font-size);
+          font-weight: var(--paper-font-headline_-_font-weight);
+          letter-spacing: var(--paper-font-headline_-_letter-spacing);
+          line-height: var(--paper-font-headline_-_line-height);
+          margin: 15px 25px; 
+        }
+        .add{
+          @apply --layout-flex;
+          @apply --layout-horizontal;
+          @apply --layout-center;
+          font-style:italic;
+          padding: 0 16px;
+          color: gray;
+        }
+    </style>
 
     <app-route
       route="{{route}}"
-      pattern="/:view"
+      pattern="/group-list/:group_id"
       data="{{routeData}}"
       active="{{routeMatch}}"
     ></app-route>
@@ -28,21 +90,73 @@
             icon='mdi:arrow-left'
             on-tap='_backTapped'
           ></paper-icon-button>
-          <div main-title>Group List</div>
+          <div main-title>[[title]]</div>
         </app-toolbar>
 
       </app-header>
 
-      <flow-layout>
-        <template is='dom-repeat' items='[[getEntitiesByGroup(hass, group)]]' as='entity'>
-          <flow-item on-tap='entityTapped'>
-            <paper-card>
-              <div class="card-content">
+      <template is="dom-if" if="[[currentGroup]]">
+        <h2>Attributes</h2>
+        <paper-card>
+          <div class="card-content">
+            <paper-input label="Group Id" value="{{currentGroup.entity_id}}" disabled></paper-input>
+            <paper-input label="Group Name" value="{{currentGroup.attributes.friendly_name}}"></paper-input>
+          </div>
+          <div class="card-actions">
+            <paper-button>Save</paper-button>
+            <paper-button>Delete</paper-button>
+          </div>
+        </paper-card>
+
+        <h2>Entities</h2>
+        <paper-card id="entityList">
+          <template is="dom-repeat" items="[[entities]]">
+            <div class='item'>
+            <iron-icon icon="[[computedIcon(item)]]" class="icon"></iron-icon>
+              <div class="pad">
+                <div class="primary">
+                  [[item.attributes.friendly_name]]
+                </div>
+                <div class="secondary dim">[[item.entity_id]]</div>
               </div>
-            </paper-card>
-          </flow-item>
+              <div class="border"></div>
+            </div>
+          </template>
+          <div class='item' on-tap="onTapAddEntity">
+            <iron-icon icon="mdi:plus" class="icon  "></iron-icon>
+            <div class="add">
+              <div class="primary">
+                Add Entity
+              </div>
+            </div>
+          </div>
+        </paper-card>
+      </template>
+
+
+      <h2>Groups</h2>
+      <paper-card id="groupList">
+        <template is="dom-repeat" items="[[groups]]">
+          <div class='item' on-tap="onTapGroup">
+            <iron-icon icon="[[computedIcon(item)]]" class="icon"></iron-icon>
+            <div class="pad">
+              <div class="primary">
+                [[item.attributes.friendly_name]]
+              </div>
+              <div class="secondary dim">[[computedChildren(item)]]</div>
+            </div>
+            <div class="border"></div>
+          </div>
         </template>
-      </flow-layout>
+        <div class='item' on-tap="onTapAddGroup">
+          <iron-icon icon="mdi:plus" class="icon  "></iron-icon>
+          <div class="add">
+            <div class="primary">
+              Add Group
+            </div>
+          </div>
+        </div>
+      </paper-card>
 
     </app-header-layout>
 
@@ -67,32 +181,131 @@
         routeData: Object,
         routeMatch: Boolean,
 
-        groups: {
+        entities: {
           type: Array,
-          computed: 'computeGroups(hass)',
+          computed: 'computeEntities(currentGroup, hass)',
         },
 
-        groupId: {
+        groups: {
+          type: Array,
+          computed: 'computeGroups(currentGroup, allGroups, topGroups)',
+        },
+
+        allGroups:{
+          type: Array,
+          computed: 'computeAllGroups(hass)',
+        },
+        currentGroup: {
+          type: Object,
+          computed: 'computeCurrentGroup(allGroups, routeData, routeMatch)',
+        },
+        topGroups:{
+          type: Array,
+          computed: 'computedTopGroups(allGroups)'
+        },
+        title:{
           type: String,
-          computed: 'computeGroupId(routeData)',
+          value: 'Group List',
+          computed:'computedTitle(currentGroup)'
         }
       }
     }
 
-    computeGroupId(routeData){
-      console.log("group routeData:%O",routeData.view);
-      return routeData.view;
-    }
-
-
     _backTapped() {
       history.back();
     }
+    computedChildren(item){
+      var total_entity = 0 , total_group = 0;
 
-    computeGroups(hass) {
-      return window.HAWS.splitByGroups(hass.states);
+      for(var v of item.attributes.entity_id){
+        if(v.substr(0, v.indexOf('.'))=='group')
+          total_group++;
+        else
+          total_entity++;
+      }
+      var result = '';
+      if(total_group>0 && total_entity>0){
+        result = total_entity+(total_entity>1?' Entities':' Entitiy')+' and '+total_group+ total_group>1?' Groups':' Group';
+      }else if(total_entity>0){
+        result = total_entity +(total_entity>1?' Entities':' Entitiy')
+      }else if(total_group>0){
+        result = total_group + (total_group>1?' Groups':' Group');
+      }
+      return result;
     }
+    computedIcon(item){
+      return window.hassUtil.stateIcon(item);
+    }
+
+    computeEntities(currentGroup, hass){
+      if(!currentGroup) return;
+
+      return Object.keys(hass.states)
+        .map(function (key) { return hass.states[key]; })
+        .filter(v => window.hassUtil.computeDomain(currentGroup) !== 'group' 
+          && currentGroup.attributes.entity_id.indexOf(v.entity_id)>-1);
+    }
+
+    computeAllGroups(hass) {
+      var allGroups=Object.keys(hass.states)
+        .map(function (key) { return hass.states[key]; })
+        .filter(function (entity) {
+          return (window.hassUtil.computeDomain(entity) === 'group' &&
+                  !entity.attributes.auto);
+        })
+        .sort(window.hassUtil.sortByName);
+        console.log(allGroups);
+      return allGroups;
+    }
+
+    computedTitle(currentGroup){
+      console.log('computedTitle:%O',currentGroup);
+      return !currentGroup? 'Group List':currentGroup.attributes.friendly_name;
+    }
+
+    computeCurrentGroup(allGroups, routeData, routeMatch){
+      console.log(routeData);
+      if(routeMatch && routeData.group_id){
+        return allGroups.find(v=>v.entity_id==routeData.group_id);
+      }
+      return undefined;
+    }
+
+    computedTopGroups(allGroups){
+      var topGroups = allGroups.slice(0);
+      for(var group of allGroups ){
+        topGroups = topGroups.filter(v => group.attributes.entity_id.indexOf(v.entity_id)<0);
+      }
+      return topGroups;
+    }
+
+    computeGroups(currentGroup, allGroups, topGroups){
+      if(currentGroup){
+        var groups=allGroups.filter(v=>currentGroup.attributes.entity_id.indexOf(v.entity_id)>-1);
+        console.log('group:%O',groups);
+        return groups;
+      }
+      return topGroups;
+    }
+
+    onTapGroup(ev){
+      var view = ev.model.item.entity_id || null;
+      var path = '/config-adv/group-list';
+      if (view) {
+        path += '/' + view;
+      }
+      history.pushState(null, null, path);
+      this.fire('location-changed');
+    }
+
+    onTapAddGroup(ev){
+
+    }
+      
   }
   customElements.define(HaConfigAdvGroupList.is, HaConfigAdvGroupList);
+
+
+
 </script>
 
