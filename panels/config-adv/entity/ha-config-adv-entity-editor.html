@@ -51,6 +51,34 @@
         margin-left: 16px;
         flex: 0 0 16px;
       }
+      .item {
+          @apply --layout-horizontal;
+          cursor: pointer;
+          padding: 16px 22px;
+          border-bottom: 1px solid #DDD;
+        }
+
+      .item:focus,
+      .item.selected:focus {
+        outline: 0;
+        background-color: #ddd;
+      }
+      .icon{
+        height: 40px;
+        width: 40px;
+        color: var(--paper-item-icon-color);
+      }
+      .primary {
+        font-size: 16px;
+      }
+      .add{
+        @apply --layout-flex;
+        @apply --layout-horizontal;
+        @apply --layout-center;
+        font-style:italic;
+        padding: 0 16px;
+        color: gray;
+      }
     </style>
     <app-route
       route="{{route}}"
@@ -110,26 +138,7 @@
             </div>
           </paper-card>
         </template>
-        <template is='dom-if' if='[[hasOtherAttributes]]'>
-          <div><h4 class="attributes-text">Other Attributes: </h4></div>
-          <paper-card>
-            <div class='card-content'>
-                       
-                  <ha-form-entity-attributes attributes="{{otherAttributes}}" is-wide=[[isWide]]></ha-form-entity-attributes>
-             
-            </div>
-          </paper-card>
-        </template>
-        <template is='dom-if' if='[[hasHasskaAttributes]]'>
-          <div><h4 class="attributes-text">Hasska Attributes: </h4></div>
-          <paper-card>
-            <div class='card-content'>
-                       
-                  <ha-form-entity-attributes attributes="{{hasskaAttributes}}" is-wide=[[isWide]]></ha-form-entity-attributes>
-             
-            </div>
-          </paper-card>
-        </template>
+        
         <template is='dom-if' if='[[hasEmulatedAttributes]]'>
            <div><h4 class="attributes-text">Emulated Attributes: </h4></div>
            <paper-card>
@@ -140,18 +149,32 @@
             </div>
           </paper-card>
         </template>
+        <template is='dom-if' if='[[hasOtherAttributes]]'>
+          <div><h4 class="attributes-text">Other Attributes: </h4></div>
+          <paper-card>
+            <div class='card-content'>
+                       
+                  <ha-form-entity-attributes attributes="{{otherAttributes}}" is-wide=[[isWide]]></ha-form-entity-attributes>
+             
+            </div>
+          </paper-card>
+        </template>
         <div><h4 class="attributes-text">Customize Attributes: </h4></div>
          <paper-card>
-          <div class='card-content'>
-            
+          
               <template is='dom-if' if='[[hasNewAttributes]]'>
-                <ha-form-entity-attributes attributes="{{newAttributes}}" is-wide=[[isWide]]></ha-form-entity-attributes>
+                <div class='card-content'>
+                  <ha-form-entity-attributes attributes="{{newAttributes}}" is-wide=[[isWide]]></ha-form-entity-attributes>
+                </div>
               </template>          
-              <div class='form-group'>
-                 <paper-icon-button icon="mdi:plus" on-tap='addCustomizeAttributes'></paper-icon-button>
-              </div>
-      
-          </div>
+              <div class='item'>
+                <iron-icon icon="mdi:plus" on-tap='addCustomizeAttributes' class="icon" ></iron-icon>
+                  <div class="add">
+                    <div class="primary">
+                      Add Entity Attributes 
+                    </div>
+                </div>
+              </div>      
         </paper-card>
         <paper-card>
           <div class='card-actions'>
@@ -197,7 +220,7 @@
 
         localAttributes: {
           type: Array,
-          computed: 'computeLocalAttributes(basisConfig, homebridgeConfig, otherConfig, emulatedConfig, hasskaConfig, entity)',
+          computed: 'computeLocalAttributes(basisConfig, homebridgeConfig, otherConfig, emulatedConfig, entity)',
         },
         hasLocalAttributes: Boolean,
 
@@ -212,12 +235,6 @@
           computed: 'computeEmulatedAttributes(emulatedConfig, entity)',
         },
         hasEmulatedAttributes: Boolean,
-
-        hasskaAttributes: {
-          type: Array,
-          computed: 'computeHasskaAttributes(hasskaConfig, entity)',
-        },
-        hasHasskaAttributes: Boolean,
 
         otherAttributes: {
           type: Array,
@@ -244,13 +261,6 @@
             homebridge_hidden: '',
           },
         },
-        hasskaConfig: {
-          type: Object,
-          value: {
-            haaska_hidden: '',
-            haaska_name: '',
-          },
-        },
         emulatedConfig: {
           type: Object,
           value: {
@@ -264,7 +274,6 @@
             entity_picture: '',
             supported_features: '',
             custom_ui_state_card: '',
-            device_class: '',
             assumed_state: '',
             initial_state: '',
             unit_of_measurement: '',
@@ -282,7 +291,7 @@
 
     static get observers() {
       return [
-        'attributesObserver(localAttributes.*, homebridgeAttributes.*, basisAttributes.*, otherAttributes.*, newAttributes.*, emulatedAttributes.*, hasskaAttributes)',
+        'attributesObserver(localAttributes.*, homebridgeAttributes.*, basisAttributes.*, otherAttributes.*, newAttributes.*, emulatedAttributes.*)',
       ];
     }
 
@@ -316,7 +325,6 @@
         if (!value) return;
         data[attr.attribute] = value;
       });
-
       const objectId = this.entity.entity_id;
       var result = this.hass.callApi('POST', 'config_adv/entity/config_adv/' + objectId, data);
       if(result){
@@ -358,10 +366,6 @@
       return this._computeAttributes(entity.attributes, basisKeys, false);
     }
 
-    computeHasskaAttributes(hasskaConfig, entity) {
-      if (!hasskaConfig || !entity) return [];
-      return this._computeAttributes(entity.attributes, Object.keys(hasskaConfig), false);
-    }
     computeEmulatedAttributes(emulatedConfig, entity) {
       if (!emulatedConfig || !entity) return [];
       return this._computeAttributes(entity.attributes, Object.keys(emulatedConfig), false);
@@ -371,15 +375,14 @@
       return this._computeAttributes(entity.attributes, Object.keys(homebridgeConfig), false);
     }
 
-    computeLocalAttributes(basisConfig, homebridgeConfig, otherConfig, emulatedConfig, hasskaConfig, entity) {
-      if (!basisConfig || !homebridgeConfig || !otherConfig || !emulatedConfig || !hasskaConfig || !entity) return [];
+    computeLocalAttributes(basisConfig, homebridgeConfig, otherConfig, emulatedConfig, entity) {
+      if (!basisConfig || !homebridgeConfig || !otherConfig || !emulatedConfig || !entity) return [];
       const basisKeys = Object.keys(basisConfig);
       const otherKeys = Object.keys(otherConfig);
       const emulatedKeys = Object.keys(emulatedConfig);
-      const hasskaKeys = Object.keys(hasskaConfig);
       const homebridgeKeys = Object.keys(homebridgeConfig);
       const localKeys = Object.keys(entity.attributes)
-        .filter(key => !basisKeys.includes(key) && !homebridgeKeys.includes(key) && !otherKeys.includes(key) && !hasskaKeys.includes(key) && !emulatedKeys.includes(key));
+        .filter(key => !basisKeys.includes(key) && !homebridgeKeys.includes(key) && !otherKeys.includes(key) && !emulatedKeys.includes(key));
       const result = this._computeAttributes(entity.attributes, localKeys, false);
       return result;
     }
@@ -402,8 +405,6 @@
         this.localAttributes && this.localAttributes.some(attr => !attr.closed);
       this.hasHomebridgeAttributes =
         this.homebridgeAttributes && this.homebridgeAttributes.some(attr => !attr.closed);
-      this.hasHasskaAttributes =
-        this.hasskaAttributes && this.hasskaAttributes.some(attr => !attr.closed);
       this.hasEmulatedAttributes =
         this.emulatedAttributes && this.emulatedAttributes.some(attr => !attr.closed);
       this.hasOtherAttributes =

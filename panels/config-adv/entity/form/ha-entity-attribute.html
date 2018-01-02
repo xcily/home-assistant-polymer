@@ -41,10 +41,16 @@
         top: 50%;
         right: 0;
       }
+      .tipsLongWidth{
+        width: 300px;
+      }
+      .tipsShortWidth{
+        width: 40px;
+      }
     </style>
     <div  class="container flex-horizontal">
       <div id='wrapper' class='flexchild'></div>
-      <div>
+      <div class$="[[computedTipsWidth(isWide)]]">
           <template is='dom-if' if='[[itemEntityType]]'>
             <paper-icon-button icon="mdi:minus" on-tap='tapButton' class="button" ></paper-icon-button>
           </template>
@@ -114,7 +120,9 @@ class HaEntityAttribute extends Polymer.Element {
       wrapper.appendChild(child);
     }
   }
-
+  computedTipsWidth(isWide){
+    return isWide ? 'tipsLongWidth' : 'tipsShortWidth';
+  }
   computeTips(item){
     if(!item) return '';
     var tipsInfo = '';
@@ -155,9 +163,6 @@ class HaEntityAttribute extends Polymer.Element {
     }
     return tipsInfo;
     
-  }
-  test(){
-    console.log(this.isWide);
   }
 }
 customElements.define(HaEntityAttribute.is, HaEntityAttribute);

@@ -52,6 +52,7 @@
     "paper-time-input": "ryanburns23/paper-time-input#^2.0.4",
     "paper-toast": "PolymerElements/paper-toast#^2.0.0",
     "paper-toggle-button": "PolymerElements/paper-toggle-button#^2.0.0",
+    "paper-tooltip": "PolymerElements/paper-tooltip#^2.0.1",
     "polymer": "^2.1.1",
     "vaadin-combo-box": "vaadin/vaadin-combo-box#^3.0.2",
     "vaadin-date-picker": "vaadin/vaadin-date-picker#^2.0.0",
