@@ -15,6 +15,10 @@
         padding: 8px;
         margin-right: 20px;
         margin-top: 10px;
+        cursor: pointer;
+      }
+      paper-input {
+        font-size: 16px;
       }
     </style>
     <ha-icon-picker icon="{{item.value}}">
@@ -25,7 +29,6 @@
       disabled='[[item.secondary]]'
       label='icon'
       value='{{item.value}}'
-      on-tap="test"
     >  
     </paper-input>
   </template>
@@ -48,9 +51,6 @@ class HaEntityIcon extends Polymer.Element {
     };
   }
 
-  test(){
-    console.log(this.item);
-  }
 }
 customElements.define(HaEntityIcon.is, HaEntityIcon);
 </script>

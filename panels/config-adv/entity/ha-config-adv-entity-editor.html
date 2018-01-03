@@ -40,17 +40,21 @@
         @apply(--layout-horizontal);
         @apply(--layout-justified);
       }
-
-      .attributes-text {
-        padding-left: 0px;
-        padding-top: 20px;
-      }
       .plus-button {
         width: 16px;
         height: 16px;
         margin-left: 16px;
         flex: 0 0 16px;
       }
+      h2{
+          font-family: var(--paper-font-headline_-_font-family);
+          -webkit-font-smoothing: var(--paper-font-headline_-_-webkit-font-smoothing);
+          font-size: var(--paper-font-headline_-_font-size);
+          font-weight: var(--paper-font-headline_-_font-weight);
+          letter-spacing: var(--paper-font-headline_-_letter-spacing);
+          line-height: var(--paper-font-headline_-_line-height);
+          margin: 15px 0px; 
+        }
       .item {
           @apply --layout-horizontal;
           cursor: pointer;
@@ -109,7 +113,7 @@
           </paper-card>
         </template>
         <template is='dom-if' if='[[hasBasisAttributes]]'>
-          <div><h4 class="attributes-text">BASE Attributes: </h4></div>
+          <div><h2>BASE Attributes: </h2></div>
           <paper-card>
             <div class='card-content'>
             
@@ -119,7 +123,7 @@
           </paper-card>
         </template>
         <template is='dom-if' if='[[hasLocalAttributes]]'>
-          <div><h4 class="attributes-text">Entity Attributes: </h4></div>
+          <div><h2>Entity Attributes: </h4></div>
            <paper-card>
             <div class='card-content'>
                
@@ -129,7 +133,7 @@
           </paper-card>
         </template>
         <template is='dom-if' if='[[hasHomebridgeAttributes]]'>
-          <div><h4 class="attributes-text">HomeBridge Attributes: </h4></div>
+          <div><h2>HomeBridge Attributes: </h2></div>
           <paper-card>
             <div class='card-content'>
                        
@@ -140,7 +144,7 @@
         </template>
         
         <template is='dom-if' if='[[hasEmulatedAttributes]]'>
-           <div><h4 class="attributes-text">Emulated Attributes: </h4></div>
+           <div><h2>Emulated Attributes: </h2></div>
            <paper-card>
             <div class='card-content'>
              
@@ -150,7 +154,7 @@
           </paper-card>
         </template>
         <template is='dom-if' if='[[hasOtherAttributes]]'>
-          <div><h4 class="attributes-text">Other Attributes: </h4></div>
+          <div><h2>Other Attributes: </h2></div>
           <paper-card>
             <div class='card-content'>
                        
@@ -159,7 +163,7 @@
             </div>
           </paper-card>
         </template>
-        <div><h4 class="attributes-text">Customize Attributes: </h4></div>
+        <div><h2>Customize Attributes: </h2></div>
          <paper-card>
           
               <template is='dom-if' if='[[hasNewAttributes]]'>
@@ -326,11 +330,11 @@
         data[attr.attribute] = value;
       });
       const objectId = this.entity.entity_id;
-      var result = this.hass.callApi('POST', 'config_adv/entity/config_adv/' + objectId, data);
+      const result = this.hass.callApi('POST', 'config_adv/entity/config_adv/' + objectId, data);
       if(result){
-          console.log(result);
+          console.log('success:',Promise.all(result));
       }else{
-          console.log(result);
+          console.log('error:',result);
 
       }  
     }
